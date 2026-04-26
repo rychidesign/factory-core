@@ -197,7 +197,7 @@ Kategorie [Stack Track](#stack-track) zaměřená na content-driven weby
 
 Příklady: astro-sanity, astro-payload.
 
-Související: [Stack Track](#stack-track), [App Track](#app-track).
+Související: [Stack Track](#stack-track).
 
 ---
 
@@ -626,7 +626,7 @@ Kimi K2.5, MiniMax M2.5/M2.7, Qwen3.5 Plus za $10/měsíc.
 Primary model pool pro většinu agentů. Doplněn o Gemini API pro 
 specifické use cases (design generation, long context).
 
-Související: [Opencode](#opencode), [Modelová strategie](#modelová-strategie).
+Související: [Opencode](#opencode).
 
 ---
 

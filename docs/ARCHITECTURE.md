@@ -319,7 +319,7 @@ clients/acme-corp-2026/
 
 ### 2.3 Why filesystem and not database
 
-Detail v ADR-0007. Shrnutí:
+Detail v ADR-0004. Shrnutí:
 - Git-versionable (history, blame, branching)
 - Human-readable (debugging without tools)
 - Recovery-friendly (no DB corruption, no migrations)
@@ -561,7 +561,7 @@ pokračuje.
 
 Místo `astro-builder.md`, `nextjs-builder.md`, `sveltekit-builder.md` 
 máme jeden `frontend-builder.md`, který dostává relevantní 
-[Skill](../GLOSSARY.md#skill) podle [Stack Track](../GLOSSARY.md#stack-track) 
+[Skill](GLOSSARY.md#skill) podle [Stack Track](GLOSSARY.md#stack-track) 
 projektu.
 
 **Důvod:** Přidání nového stacku = napsat skill, ne napsat agent. 
@@ -781,7 +781,7 @@ ajv při každém receive.
 LLM pod tlakem ignorují instrukce v promptech. Bezpečnost musí být 
 **enforced před každým tool call**, ne v promptu.
 
-Detail v ADR-0010.
+Detail v ADR-0005.
 
 ### 5.2 Hook execution flow
 
