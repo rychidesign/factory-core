@@ -143,6 +143,7 @@ náročné, debugging složitý.
 
 Orchestrátor je **stateless**. Každá iterace = fresh context.
 
+```
 Iteration N:
 
 1. Read state.json
@@ -152,6 +153,7 @@ Iteration N:
 5. Spawn agent OR advance phase
 6. Update state.json (atomic)
 7. End iteration
+```
 
 State žije v souborech: `state.json`, `plan.md`, `decisions.jsonl`,
 `logs/`, `blockers/`.
@@ -215,6 +217,7 @@ monolitický YAML nebo více strukturovaných souborů?
 
 **Multi-file structure** v `clients/{project-id}/spec/`:
 
+```
 spec/
 ├── meta.yaml
 ├── brief.md
@@ -225,6 +228,7 @@ spec/
 ├── stack.yaml
 ├── design-direction.yaml
 └── constraints.yaml
+```
 
 Plus `client-assets/` adresář pro binární soubory.
 
@@ -294,6 +298,7 @@ file system.
 
 **File-based state** ve struktuře `.factory-state/`:
 
+```
 .factory-state/
 ├── state.json
 ├── plan.md
@@ -302,6 +307,7 @@ file system.
 ├── logs/
 ├── artifacts/
 └── workspace/
+```
 
 Žádná databáze.
 
@@ -381,10 +387,12 @@ LLM nemůže ignorovat.
 
 **Hook-based permission enforcement** přes Opencode pre-tool-use hooks:
 
+```
 factory-core/.opencode/
 ├── hooks/
 │   └── permission-gate.sh    # central enforcement
 ├── permissions.yaml          # per-agent allow/deny matrix
+```
 
 Před každým tool call hook:
 1. Čte FACTORY_AGENT env var
@@ -822,9 +830,11 @@ re-discovered každý run.
 
 **Known-patterns library** s self-learning loop:
 
+```
 factory-core/known-patterns/
 ├── approved/    (used by healer)
 └── pending/     (waiting for Jirka review)
+```
 
 Healer agent navrhuje new patterns po successful resolution. Jirka
 review/approve/reject. Approved patterns immediately available.

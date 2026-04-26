@@ -50,26 +50,27 @@ to funguje. Dokument, který nikdo nepoužil, je jen literatura.
 
 ## Vysoký pohled — 6 wave
 
+```
 Wave 1: Foundation              (2 týdny)   ┐
-→ Schemas, conventions, infra  ┘
-│
-Wave 2: Intake MVP               (2 týdny)   ┐
-→ Claude Desktop intake fungující         │
-│
-Wave 3: Factory Skeleton         (3 týdny)   ┐
-→ Walking skeleton: spec → web na staging │
-│
-Wave 4: Design Integration       (3 týdny)   ┐
-→ Figma MCP, AI design, kvalitní výstup  │
-│
-Wave 5: Dashboard + Autonomy     (3 týdny)   ┐
-→ Observability, control, self-healing    │
-│
-Wave 6: First real project       (2-3 týdny) ┐
-→ Reálný klient, lessons learned          │
-│
-↓
-Maturity (V1.x), iterations, growth
+  → Schemas, conventions, infra             ┘
+                                            │
+Wave 2: Intake MVP               (2 týdny)  ┐
+  → Claude Desktop intake fungující         │
+                                            │
+Wave 3: Factory Skeleton         (3 týdny)  ┐
+  → Walking skeleton: spec → web na staging │
+                                            │
+Wave 4: Design Integration       (3 týdny)  ┐
+  → Figma MCP, AI design, kvalitní výstup   │
+                                            │
+Wave 5: Dashboard + Autonomy     (3 týdny)  ┐
+  → Observability, control, self-healing    │
+                                            │
+Wave 6: First real project       (2-3 týdny)┐
+  → Reálný klient, lessons learned          │
+                                            ↓
+                  Maturity (V1.x), iterations, growth
+```
 
 **Realistický total: 15-17 týdnů ≈ 4 měsíce.**
 
@@ -78,7 +79,7 @@ Tohle je při konzistentní práci ~10-20 hodin týdně. Pokud máš méně
 
 ---
 
-# Wave 1: Foundation
+## Wave 1: Foundation
 
 **Goal:** Mít pevné kontrakty a infrastrukturu, na které se dá stavět.
 
@@ -93,7 +94,7 @@ Tohle je při konzistentní práci ~10-20 hodin týdně. Pokud máš méně
 
 ---
 
-## Krok 1.1 — Git repo a struktura
+### Krok 1.1 — Git repo a struktura
 
 **Doba:** 1 den
 
@@ -116,7 +117,7 @@ Tohle je při konzistentní práci ~10-20 hodin týdně. Pokud máš méně
 
 ---
 
-## Krok 1.2 — Spec schemas
+### Krok 1.2 — Spec schemas
 
 **Doba:** 3 dny
 
@@ -151,7 +152,7 @@ pole dává čitelné chyby.
 
 ---
 
-## Krok 1.3 — State a plan schemas
+### Krok 1.3 — State a plan schemas
 
 **Doba:** 2 dny
 
@@ -177,7 +178,7 @@ vše projde validací.
 
 ---
 
-## Krok 1.4 — Stack catalog & first template
+### Krok 1.4 — Stack catalog & first template
 
 **Doba:** 2 dny
 
@@ -209,7 +210,7 @@ funkční localhost:4321 s Astro welcome page.
 
 ---
 
-## Krok 1.5 — Archetypes catalog
+### Krok 1.5 — Archetypes catalog
 
 **Doba:** 2 dny
 
@@ -241,7 +242,7 @@ definice na ně? Když ne, upravujeme.
 
 ---
 
-## Krok 1.6 — Permissions matrix a hooks
+### Krok 1.6 — Permissions matrix a hooks
 
 **Doba:** 2 dny
 
@@ -262,7 +263,7 @@ disallowed action, hook returns exit 1 + logs.
 
 ---
 
-## Krok 1.7 — Server preparation
+### Krok 1.7 — Server preparation
 
 **Doba:** 1 den
 
@@ -291,7 +292,7 @@ strukturu. Cloudflare Tunnel UP, ale zatím nic na localhost:3000 (404).
 
 ---
 
-## Wave 1 checkpoint
+### Wave 1 checkpoint
 
 **Po Wave 1 máš:**
 - Git repo s jasnou strukturou na GitHubu i serveru
@@ -315,7 +316,7 @@ Mělo by skončit "✓ Valid spec".
 
 ---
 
-# Wave 2: Intake MVP
+## Wave 2: Intake MVP
 
 **Goal:** Claude Desktop Project, který z konverzace s klientem vytvoří
 validovaný spec.
@@ -330,7 +331,7 @@ validovaný spec.
 
 ---
 
-## Krok 2.1 — Intake system prompt
+### Krok 2.1 — Intake system prompt
 
 **Doba:** 3 dny
 
@@ -363,7 +364,7 @@ spec, který projde validátorem.
 
 ---
 
-## Krok 2.2 — Claude Desktop Project setup
+### Krok 2.2 — Claude Desktop Project setup
 
 **Doba:** 1 den
 
@@ -389,7 +390,7 @@ ihned rozumí roli ("asistent během intake klienta").
 
 ---
 
-## Krok 2.3 — Workflow & transfer
+### Krok 2.3 — Workflow & transfer
 
 **Doba:** 2 dny
 
@@ -398,12 +399,12 @@ ihned rozumí roli ("asistent během intake klienta").
 - `docs/how-to/transfer-spec-to-server.md` — workflow z Claude Desktop
   na server
 - `tools/factory-new-project` skript:
-```bash
+  ```bash
   factory-new-project <project-id>
   # Creates: clients/<project-id>/spec/, client-assets/, etc.
   # Validates spec
   # Initializes git repo
-```
+  ```
 - Auto-validace při příjmu
 
 **Test:** Kompletní flow: Claude Desktop intake → export souborů →
@@ -416,7 +417,7 @@ validní, repo initialized.
 
 ---
 
-## Krok 2.4 — První reálný intake
+### Krok 2.4 — První reálný intake
 
 **Doba:** 2-3 dny (záleží na klientovi)
 
@@ -441,7 +442,7 @@ factory build (i kdybychom ho zatím nestavili).
 
 ---
 
-## Wave 2 checkpoint
+### Wave 2 checkpoint
 
 **Po Wave 2 máš:**
 - Funkční Claude Desktop Project pro intake
@@ -456,7 +457,7 @@ denně.
 
 ---
 
-# Wave 3: Factory Skeleton
+## Wave 3: Factory Skeleton
 
 **Goal:** Walking skeleton — minimální end-to-end Factory, která ze
 spec postaví jednoduchý web. Ne krásný, ne inteligentní, ale **funkční
@@ -472,7 +473,7 @@ end-to-end**.
 
 ---
 
-## Krok 3.1 — Orchestrator V1
+### Krok 3.1 — Orchestrator V1
 
 **Doba:** 4 dny
 
@@ -508,7 +509,7 @@ end-to-end**.
 
 ---
 
-## Krok 3.2 — Architect agents
+### Krok 3.2 — Architect agents
 
 **Doba:** 3 dny
 
@@ -529,7 +530,7 @@ a jsou strukturované.
 
 ---
 
-## Krok 3.3 — Minimal builders
+### Krok 3.3 — Minimal builders
 
 **Doba:** 5 dnů
 
@@ -561,7 +562,7 @@ Web funguje (`npm run dev`), žádné errors.
 
 ---
 
-## Krok 3.4 — Deploy & first real run
+### Krok 3.4 — Deploy & first real run
 
 **Doba:** 3 dny
 
@@ -591,7 +592,7 @@ po ~30 minutách je web na `https://test-project.pages.dev`.
 
 ---
 
-## Krok 3.5 — Healer V1 a known patterns seed
+### Krok 3.5 — Healer V1 a known patterns seed
 
 **Doba:** 3 dny
 
@@ -615,7 +616,7 @@ detekuje, aplikuje pattern, recovers.
 
 ---
 
-## Wave 3 checkpoint
+### Wave 3 checkpoint
 
 **Po Wave 3 máš:**
 - Funkční factory: spec → web na staging
@@ -636,7 +637,7 @@ kvalitu, ne fundamentální features.
 
 ---
 
-# Wave 4: Design Integration
+## Wave 4: Design Integration
 
 **Goal:** Factory produkuje **krásné** weby s AI-generovaným Figma designem.
 
@@ -650,7 +651,7 @@ kvalitu, ne fundamentální features.
 
 ---
 
-## Krok 4.1 — Figma MCP setup
+### Krok 4.1 — Figma MCP setup
 
 **Doba:** 2 dny
 
@@ -674,7 +675,7 @@ viditelný v Figma účtu.
 
 ---
 
-## Krok 4.2 — Design director agent
+### Krok 4.2 — Design director agent
 
 **Doba:** 3 dny
 
@@ -702,7 +703,7 @@ aesthetic. Mood boards vygenerované.
 
 ---
 
-## Krok 4.3 — Figma designer agent
+### Krok 4.3 — Figma designer agent
 
 **Doba:** 5 dnů
 
@@ -735,7 +736,7 @@ vlastní variables, 18+ komponent.
 
 ---
 
-## Krok 4.4 — Figma extractor a build integration
+### Krok 4.4 — Figma extractor a build integration
 
 **Doba:** 3 dny
 
@@ -758,7 +759,7 @@ Figma designu (visual diff < 5%).
 
 ---
 
-## Krok 4.5 — První design-driven projekt
+### Krok 4.5 — První design-driven projekt
 
 **Doba:** 3 dny
 
@@ -788,7 +789,7 @@ udělal manuálně za 2 dny intensivní práce.
 
 ---
 
-## Wave 4 checkpoint
+### Wave 4 checkpoint
 
 **Po Wave 4 máš:**
 - Factory produkuje weby s AI-generovaným designem
@@ -801,7 +802,7 @@ Factory přestává být prototyp a stává se **použitelným production toolem
 
 ---
 
-# Wave 5: Dashboard + Autonomy
+## Wave 5: Dashboard + Autonomy
 
 **Goal:** Plná observability + control + self-healing pro skutečnou
 autonomii.
@@ -818,7 +819,7 @@ autonomii.
 
 ---
 
-## Krok 5.1 — Dashboard backend
+### Krok 5.1 — Dashboard backend
 
 **Doba:** 3 dny
 
@@ -848,7 +849,7 @@ stream functional.
 
 ---
 
-## Krok 5.2 — Dashboard frontend MVP
+### Krok 5.2 — Dashboard frontend MVP
 
 **Doba:** 5 dnů
 
@@ -882,7 +883,7 @@ nutný.
 
 ---
 
-## Krok 5.3 — QA fáze agents
+### Krok 5.3 — QA fáze agents
 
 **Doba:** 4 dny
 
@@ -908,7 +909,7 @@ audits trigger healing nebo blocker.
 
 ---
 
-## Krok 5.4 — Telegram bot a escalation
+### Krok 5.4 — Telegram bot a escalation
 
 **Doba:** 3 dny
 
@@ -939,7 +940,7 @@ zprávu, klikneš "Pause", factory pauzuje.
 
 ---
 
-## Krok 5.5 — Overnight autonomy test
+### Krok 5.5 — Overnight autonomy test
 
 **Doba:** 2 dny
 
@@ -964,7 +965,7 @@ zprávu, klikneš "Pause", factory pauzuje.
 
 ---
 
-## Wave 5 checkpoint
+### Wave 5 checkpoint
 
 **Po Wave 5 máš:**
 - Plně funkční dashboard
@@ -978,7 +979,7 @@ zprávu, klikneš "Pause", factory pauzuje.
 
 ---
 
-# Wave 6: First real project
+## Wave 6: First real project
 
 **Goal:** Reálný klient. Reálná zkušenost. Reálné lessons learned.
 
@@ -992,7 +993,7 @@ zprávu, klikneš "Pause", factory pauzuje.
 
 ---
 
-## Krok 6.1 — Real client intake
+### Krok 6.1 — Real client intake
 
 **Doba:** 1-2 dny
 
@@ -1010,7 +1011,7 @@ zprávu, klikneš "Pause", factory pauzuje.
 
 ---
 
-## Krok 6.2 — Real factory run
+### Krok 6.2 — Real factory run
 
 **Doba:** 3-7 dnů (záleží na size projektu a iterations)
 
@@ -1037,7 +1038,7 @@ zprávu, klikneš "Pause", factory pauzuje.
 
 ---
 
-## Krok 6.3 — Client review & iteration
+### Krok 6.3 — Client review & iteration
 
 **Doba:** 3-5 dnů
 
@@ -1055,7 +1056,7 @@ zprávu, klikneš "Pause", factory pauzuje.
 
 ---
 
-## Krok 6.4 — Production deploy & post-mortem
+### Krok 6.4 — Production deploy & post-mortem
 
 **Doba:** 1-2 dny
 
@@ -1084,7 +1085,7 @@ zprávu, klikneš "Pause", factory pauzuje.
 
 ---
 
-## Wave 6 checkpoint
+### Wave 6 checkpoint
 
 **Po Wave 6 máš:**
 - 1 real client project shipped
@@ -1097,11 +1098,11 @@ Factory je **proven business asset**, ne experiment.
 
 ---
 
-# Beyond V1: Maturity & Growth
+## Beyond V1: Maturity & Growth
 
 Po Wave 6 přichází fáze otevřená podle reálu:
 
-## Maturity period (months 5-7)
+### Maturity period (months 5-7)
 
 - 3-5 dalších real projektů
 - Iterace na pain points
@@ -1109,7 +1110,7 @@ Po Wave 6 přichází fáze otevřená podle reálu:
 - Process refinements
 - Pricing model validation
 
-## Growth options (month 8+)
+### Growth options (month 8+)
 
 Některé možnosti v ROADMAP, ne závazné:
 

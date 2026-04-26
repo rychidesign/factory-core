@@ -361,6 +361,7 @@ Související: [Dashboard](#dashboard), [Intake](#intake).
 
 Git repozitář s sdíleným kódem, konfigurací a knowledge base továrny:
 
+```
 factory-core/
 ├── .opencode/
 │   ├── agents/
@@ -373,6 +374,7 @@ factory-core/
 ├── known-patterns/
 ├── conventions/
 └── docs/
+```
 
 Cloned na server jako `~/factory-projects/factory-core/`. Updatuje se
 přes git.
@@ -591,10 +593,12 @@ Související: [Figma MCP](#figma-mcp).
 
 Striktní pravidla pojmenování mezi Figma komponenty a kódem:
 
+```
 Figma component         →  Code component
 Button/Primary/Large    →  <Button variant="primary" size="lg" />
 Hero/Centered/Image     →  <HeroCentered withImage />
 Card/Service            →  <ServiceCard />
+```
 
 Validátor v factory ověřuje correspondence. Mismatch = blocker.
 
@@ -780,6 +784,7 @@ Multi-file structured input z [Intake](#intake), který popisuje
 klientský projekt. Žije v `clients/{project-id}/spec/` jako 8 YAML
 souborů + supporting assets:
 
+```
 spec/
 ├── meta.yaml
 ├── brief.md
@@ -790,6 +795,7 @@ spec/
 ├── stack.yaml
 ├── design-direction.yaml
 └── constraints.yaml
+```
 
 Validovaný proti JSON Schemas. Po validaci je read-only pro factory.
 
@@ -965,7 +971,7 @@ You Aren't Gonna Need It — princip software developmentu odmítající
 předčasné features. Klíčový pro factory development: stavíme jen co
 reálně potřebujeme, rozšiřujeme podle dat z provozu.
 
-Souvisí s [principem](#principy) "Minimum viable, iterate later".
+Souvisí s principem "Minimum viable, iterate later" (viz PROJECT-BRIEF.md).
 
 ---
 

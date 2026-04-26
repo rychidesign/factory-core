@@ -24,6 +24,7 @@ Tento dokument je hlavní technický kontext pro Claude Code.
 
 ### 1.1 Three systems, one workflow
 
+```
 ┌─────────────────────────────────────────────────────────────────┐
 │                                                                  │
 │  INTAKE SYSTEM            FACTORY SYSTEM         DASHBOARD       │
@@ -32,25 +33,26 @@ Tento dokument je hlavní technický kontext pro Claude Code.
 │  Claude Desktop           Linux server (homelab) Web app         │
 │  Project                  ┌───────────────────┐  ┌─────────────┐ │
 │                           │  Orchestrator     │  │ Astro       │ │
-│  ┌──────────────┐         │  Agents pool     │  │ + React     │ │
-│  │ System prompt│         │  Hooks layer     │  │ + Tailwind  │ │
-│  │ Archetypes   │ spec/   │  Skills          │  │ + shadcn    │ │
-│  │ Schemas      │ ──────> │  Known patterns  │  │             │ │
-│  │ Examples     │         │  ──────────────  │  │ SSE stream  │ │
-│  └──────────────┘         │  state.json      │<>│ from factory│ │
-│                           │  plan.md         │  │             │ │
-│                           │  workspace/      │  │             │ │
+│  ┌──────────────┐         │  Agents pool      │  │ + React     │ │
+│  │ System prompt│         │  Hooks layer      │  │ + Tailwind  │ │
+│  │ Archetypes   │ spec/   │  Skills           │  │ + shadcn    │ │
+│  │ Schemas      │ ──────> │  Known patterns   │  │             │ │
+│  │ Examples     │         │  ──────────────   │  │ SSE stream  │ │
+│  └──────────────┘         │  state.json       │<>│ from factory│ │
+│                           │  plan.md          │  │             │ │
+│                           │  workspace/       │  │             │ │
 │                           └───────────────────┘  └─────────────┘ │
 │                                                                  │
-│  Output: spec/            Output: deployed     Output: visual    │
-│                           web + artifacts      control + ops    │
+│  Output: spec/            Output: deployed       Output: visual  │
+│                           web + artifacts        control + ops   │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
-│                          │                       │
-│                          │                       │
-└────── git/scp ───────────┘                       │
-│                       │
-└─── files + SSE ───────┘
+        │                          │                       │
+        │                          │                       │
+        └────── git/scp ───────────┘                       │
+                                   │                       │
+                                   └─── files + SSE ───────┘
+```
 
 ### 1.2 Communication patterns
 
@@ -63,25 +65,27 @@ Sanity (CMS), Telegram (notifications).
 
 ### 1.3 Server topology
 
+```
 Homelab server (Linux):
 ├── ~/factory-projects/
 │   ├── factory-core/                  # shared config, git repo
 │   └── clients/
-│       ├── acme-corp-2026/             # vlastní git repo
-│       ├── bakery-xy-2026/             # vlastní git repo
+│       ├── acme-corp-2026/            # vlastní git repo
+│       ├── bakery-xy-2026/            # vlastní git repo
 │       └── ...
 │
-├── ~/factory-dashboard/                # dashboard app, vlastní git repo
+├── ~/factory-dashboard/               # dashboard app, vlastní git repo
 │
 ├── ~/.config/factory/
-│   └── secrets.env                     # API keys, chmod 600
+│   └── secrets.env                    # API keys, chmod 600
 │
 └── /etc/systemd/system/
-├── factory@.service                # template per projekt
-├── factory-api.service             # dashboard backend
-├── factory-dashboard.service       # dashboard frontend
-├── factory-monitor.service         # heartbeat + Telegram
-└── cloudflared.service             # tunnel daemon
+    ├── factory@.service               # template per projekt
+    ├── factory-api.service            # dashboard backend
+    ├── factory-dashboard.service      # dashboard frontend
+    ├── factory-monitor.service        # heartbeat + Telegram
+    └── cloudflared.service            # tunnel daemon
+```
 
 ---
 
@@ -89,6 +93,7 @@ Homelab server (Linux):
 
 ### 2.1 factory-core repository
 
+```
 factory-core/
 ├── README.md
 ├── LICENSE
@@ -235,14 +240,16 @@ factory-core/
 │   └── tone-of-voice.md
 │
 └── tools/                              # CLI utilities
-├── factory                         # main wrapper command
-├── spec-validate
-├── factory-new-project
-├── factory-status
-└── factory-resume
+    ├── factory                         # main wrapper command
+    ├── spec-validate
+    ├── factory-new-project
+    ├── factory-status
+    └── factory-resume
+```
 
 ### 2.2 Per-client project structure
 
+```
 clients/acme-corp-2026/
 ├── .git/                               # vlastní git repo
 ├── .gitignore
@@ -308,6 +315,7 @@ clients/acme-corp-2026/
 │       └── ...
 │
 └── deploy-info.json                    # staging URL, production URL
+```
 
 ### 2.3 Why filesystem and not database
 
@@ -329,20 +337,22 @@ Trade-off: žádné transactions napříč soubory. Řeší se atomic writes
 
 Orchestrátor **si nepamatuje nic mezi iteracemi**. Každý run je čistý:
 
+```
 Iteration N:
 
-1. Read state.json
-2. Read plan.md (current phase, next task)
-3. Read last 5 entries z decisions.jsonl
-4. Read pending blockers
-5. Decide: spawn agent, advance phase, escalate, or pause
-6. Execute decision (spawn agent OR update state)
-7. Wait for agent result (if spawned)
-8. Validate result against JSON Signal schema
-9. Update state.json (atomic write)
+ 1. Read state.json
+ 2. Read plan.md (current phase, next task)
+ 3. Read last 5 entries z decisions.jsonl
+ 4. Read pending blockers
+ 5. Decide: spawn agent, advance phase, escalate, or pause
+ 6. Execute decision (spawn agent OR update state)
+ 7. Wait for agent result (if spawned)
+ 8. Validate result against JSON Signal schema
+ 9. Update state.json (atomic write)
 10. Append decision to decisions.jsonl
 11. Commit to git: "iter-N: <decision summary>"
 12. End iteration
+```
 
 ### 3.2 State.json schema
 
@@ -629,21 +639,32 @@ Example:
 
 ### 4.3 Agent lifecycle
 
-Orchestrator iteration:
-↓
+```
+Orchestrator iteration
+    ↓
 Decide: spawn frontend-builder for task X
-↓
+    ↓
 Inject context:
-
-- System prompt (from frontend-builder.md)
-- Skills (resolved from project.stack.track)
-- Task description
-- Required artifacts (design-tokens, manifest, sitemap)
-- Permission constraints (from permissions.yaml) ↓ Spawn Opencode agent process ↓ Agent runs:
-- Reads context
-- Performs tool calls (with hook validation)
-- Generates artifacts
-- Returns JSON Signal ↓ Orchestrator validates signal ↓ Orchestrator updates state, plan, logs ↓ End iteration
+  - System prompt (from frontend-builder.md)
+  - Skills (resolved from project.stack.track)
+  - Task description
+  - Required artifacts (design-tokens, manifest, sitemap)
+  - Permission constraints (from permissions.yaml)
+    ↓
+Spawn Opencode agent process
+    ↓
+Agent runs:
+  - Reads context
+  - Performs tool calls (with hook validation)
+  - Generates artifacts
+  - Returns JSON Signal
+    ↓
+Orchestrator validates signal
+    ↓
+Orchestrator updates state, plan, logs
+    ↓
+End iteration
+```
 
 ### 4.4 Agent communication: JSON Signals
 
@@ -764,20 +785,23 @@ Detail v ADR-0010.
 
 ### 5.2 Hook execution flow
 
+```
 Agent attempts tool call (e.g., Write to /etc/passwd)
-↓
+    ↓
 Opencode invokes pre-tool-use hooks:
-↓
+    ↓
 permission-gate.sh:
-
-- Reads FACTORY_AGENT env var (set by orchestrator)
-- Reads permissions.yaml
-- Checks if agent X can perform tool Y on resource Z
-- If allowed: exit 0 (tool proceeds)
-- If denied: exit 1 + log + signal orchestrator ↓ post-tool-use.sh:
-- Logs tool call to audit log
-- Updates token counter
-- Updates cost tracker
+  - Reads FACTORY_AGENT env var (set by orchestrator)
+  - Reads permissions.yaml
+  - Checks if agent X can perform tool Y on resource Z
+  - If allowed: exit 0 (tool proceeds)
+  - If denied: exit 1 + log + signal orchestrator
+    ↓
+post-tool-use.sh:
+  - Logs tool call to audit log
+  - Updates token counter
+  - Updates cost tracker
+```
 
 ### 5.3 Permission matrix
 
@@ -1054,6 +1078,7 @@ How-to dokument: `docs/how-to/add-new-stack.md`. Steps:
 
 ### 7.2 Figma file structure (generated)
 
+```
 Figma file: "Acme Corp Design System"
 ├── 1-Brand-Guidelines             (auto-populated from direction)
 ├── 2-Foundation
@@ -1075,21 +1100,25 @@ Figma file: "Acme Corp Design System"
 │   ├── content-page
 │   └── listing-page
 └── 5-Pages
-├── Homepage
-├── About
-├── Services
-├── Service detail (template)
-├── Case studies (list)
-├── Case study detail (template)
-├── Contact
-└── ...
+    ├── Homepage
+    ├── About
+    ├── Services
+    ├── Service detail (template)
+    ├── Case studies (list)
+    ├── Case study detail (template)
+    ├── Contact
+    └── ...
+```
 
 ### 7.3 Naming convention contract
+
+```
 Figma component name    →    Code component name
 Button/Primary/Large    →    <Button variant="primary" size="lg" />
 Hero/Centered/Image     →    <HeroCentered withImage />
 Card/Service            →    <ServiceCard />
 Nav/Main                →    <MainNav />
+```
 
 Validátor: `tools/validate-naming` checkuje korespondence Figma ↔ kód. 
 Mismatch = blocker.
@@ -1098,20 +1127,22 @@ Mismatch = blocker.
 
 Agent učení popsáno v ADR-0011. Mechanika:
 
+```
 figma-designer dokončí projekt
-↓
+    ↓
 Po úspěchu: figma-designer reflektuje:
 "Jaký pattern jsem objevil, co stojí za zapamatování?"
-↓
+    ↓
 Návrhy do figma-patterns/learnings/pending/<pattern-name>.md
-↓
+    ↓
 Dashboard zobrazí "N pending patterns"
-↓
+    ↓
 Jirka review → approve/reject/edit
-↓
+    ↓
 Approved patterns → figma-patterns/learnings/approved/
-↓
+    ↓
 Příští figma-designer run je má v skill kontextu
+```
 
 Stejný pattern platí pro known-patterns u healera.
 
@@ -1121,33 +1152,36 @@ Stejný pattern platí pro known-patterns u healera.
 
 ### 8.1 Escalation levels
 
+```
 Issue detected
-↓
+    ↓
 Level 0: Auto-resolve
-
-- Agent has decide-then-document instruction
-- For minor issues: agent decides, documents, continues
-- Example: "broken import → fix import path"
-↓ (if can't resolve)
-- Level 1: Healer
-- Healer agent invoked
-- Reads known-patterns/approved/
-- Tries matching patterns
-- If fix → apply, log, continue
-- If no match → tries reasoning approach
-↓ (if can't resolve)
-- Level 2: Async digest
-- Log to digest queue
-- Continue with other tasks if possible
-- Daily morning email/Telegram with digest
-- Jirka reviews when available
-↓ (if blocking)
-- Level 3: Sync Telegram
-- Immediate Telegram alert
-- Factory pauses (or continues parallel work)
-- Jirka responds via dashboard or Telegram
+  - Agent has decide-then-document instruction
+  - For minor issues: agent decides, documents, continues
+  - Example: "broken import → fix import path"
+    ↓ (if can't resolve)
+Level 1: Healer
+  - Healer agent invoked
+  - Reads known-patterns/approved/
+  - Tries matching patterns
+  - If fix → apply, log, continue
+  - If no match → tries reasoning approach
+    ↓ (if can't resolve)
+Level 2: Async digest
+  - Log to digest queue
+  - Continue with other tasks if possible
+  - Daily morning email/Telegram with digest
+  - Jirka reviews when available
+    ↓ (if blocking)
+Level 3: Sync Telegram
+  - Immediate Telegram alert
+  - Factory pauses (or continues parallel work)
+  - Jirka responds via dashboard or Telegram
+```
 
 ### 8.2 Known-patterns library
+
+```
 factory-core/known-patterns/
 ├── approved/
 │   ├── npm-install-eperm-error.md
@@ -1156,7 +1190,8 @@ factory-core/known-patterns/
 │   ├── tailwind-class-not-applied.md
 │   └── ...
 └── pending/                           # waiting for Jirka review
-└── ...
+    └── ...
+```
 
 Each pattern:
 
@@ -1195,20 +1230,23 @@ High — applied successfully in 8/8 cases.
 
 ### 8.3 Self-improvement loop
 
+```
 Healer encounters unknown problem
-↓
+    ↓
 Healer reasons through resolution
-↓
+    ↓
 If successful resolution:
-Healer writes proposed pattern to known-patterns/pending/
-↓
+  Healer writes proposed pattern to known-patterns/pending/
+    ↓
 Dashboard surface: "1 new pattern proposed for review"
-↓
+    ↓
 Jirka reviews:
-
-- Approve → moves to approved/
-- Edit + approve → edited version to approved/
-- Reject → deletes from pending/ ↓ Approved patterns immediately available for next runs
+  - Approve → moves to approved/
+  - Edit + approve → edited version to approved/
+  - Reject → deletes from pending/
+    ↓
+Approved patterns immediately available for next runs
+```
 
 ---
 
@@ -1216,25 +1254,26 @@ Jirka reviews:
 
 ### 9.1 Budget hierarchy
 
+```
 Project budget (constraints.yaml)
-
-- max_tokens_total: 5000000
-- max_dollar_cost: 10.00
-- max_iterations: 300
-- max_duration_hours: 48
-- max_consecutive_failures: 5
-↓
-- Agent budget (per agent definition)
-- max_tokens_per_invocation: 80000
-- max_retries: 3
-- max_duration_minutes: 15
-↓
-- Auto-actions:
-- 75% project budget → Level 2 notification
-- 95% project budget → Level 3 notification + pause
-- 100% project budget → auto-stop
-- 5 consecutive failures → auto-stop after healing attempts
-- 48h wall clock → auto-stop
+  - max_tokens_total: 5000000
+  - max_dollar_cost: 10.00
+  - max_iterations: 300
+  - max_duration_hours: 48
+  - max_consecutive_failures: 5
+    ↓
+Agent budget (per agent definition)
+  - max_tokens_per_invocation: 80000
+  - max_retries: 3
+  - max_duration_minutes: 15
+    ↓
+Auto-actions:
+  - 75% project budget  → Level 2 notification
+  - 95% project budget  → Level 3 notification + pause
+  - 100% project budget → auto-stop
+  - 5 consecutive failures → auto-stop after healing attempts
+  - 48h wall clock → auto-stop
+```
 
 ### 9.2 Cost tracking implementation
 
@@ -1266,32 +1305,34 @@ aggregates, visualizes.
 
 Server has zero public open ports except SSH (key-only).
 
+```
 Internet
-↓
+    ↓
 Cloudflare DNS (digitaldesigner.cz on Cloudflare)
-↓
-├── digitaldesigner.cz → Cloudflare Pages (portfolio, separate)
-└── factory.digitaldesigner.cz → Cloudflare Tunnel
-↓
-↓ (encrypted outbound)
-↓
-Homelab server:
-├── cloudflared (outbound to CF)
-├── localhost:3000 (dashboard frontend)
-├── localhost:3001 (dashboard API)
-├── localhost:3002 (factory monitor)
-└── localhost:* (per-project dev servers, ephemeral)
+    ↓
+    ├── digitaldesigner.cz → Cloudflare Pages (portfolio, separate)
+    └── factory.digitaldesigner.cz → Cloudflare Tunnel
+            ↓ (encrypted outbound)
+        Homelab server:
+            ├── cloudflared (outbound to CF)
+            ├── localhost:3000 (dashboard frontend)
+            ├── localhost:3001 (dashboard API)
+            ├── localhost:3002 (factory monitor)
+            └── localhost:*    (per-project dev servers, ephemeral)
+```
 
 ### 10.2 Cloudflare Access auth
-User → factory.digitaldesigner.cz
-↓
-Cloudflare Access policy check:
 
-- Allowed emails: jirka@..., team@...
-- Identity provider: Google
-↓
-├── Allowed → request proxied to localhost:3000
-└── Denied → 403, Cloudflare login screen
+```
+User → factory.digitaldesigner.cz
+    ↓
+Cloudflare Access policy check:
+  - Allowed emails: jirka@..., team@...
+  - Identity provider: Google
+    ↓
+    ├── Allowed → request proxied to localhost:3000
+    └── Denied  → 403, Cloudflare login screen
+```
 
 Free tier: 50 users. Sufficient for V1+V2.
 
@@ -1319,6 +1360,7 @@ For emergency access if Cloudflare fails or for SSH:
 
 ### 11.2 Component structure
 
+```
 factory-dashboard/
 ├── src/
 │   ├── pages/
@@ -1340,9 +1382,9 @@ factory-dashboard/
 │   │   │   └── webhooks/
 │   │   │       └── telegram.ts        # bot integration
 │   │   └── auth/
-│   │       └── ...                     # CF Access integration
+│   │       └── ...                    # CF Access integration
 │   │
-│   ├── islands/                        # React components
+│   ├── islands/                       # React components
 │   │   ├── ProjectList.tsx
 │   │   ├── ProjectDetail.tsx
 │   │   ├── AgentGraph.tsx
@@ -1356,13 +1398,13 @@ factory-dashboard/
 │   │   └── ...
 │   │
 │   ├── lib/
-│   │   ├── factory-state.ts            # read state.json
-│   │   ├── factory-control.ts          # systemctl wrapper
-│   │   ├── sse.ts                      # SSE utilities
-│   │   ├── telegram.ts                 # bot client
+│   │   ├── factory-state.ts           # read state.json
+│   │   ├── factory-control.ts         # systemctl wrapper
+│   │   ├── sse.ts                     # SSE utilities
+│   │   ├── telegram.ts                # bot client
 │   │   └── ...
 │   │
-│   ├── stores/                         # nanostores
+│   ├── stores/                        # nanostores
 │   │   ├── projects.ts
 │   │   ├── activeProject.ts
 │   │   └── ui.ts
@@ -1375,42 +1417,49 @@ factory-dashboard/
 ├── tailwind.config.ts
 ├── package.json
 └── tsconfig.json
+```
 
 ### 11.3 Data flow: project detail page
-Browser request: /projects/acme-corp-2026
-↓
-Astro SSR:
 
-- Read clients/acme-corp-2026/.factory-state/state.json
-- Read plan.md (parsed)
-- Read recent decisions
-- Render shell
-↓
+```
+Browser request: /projects/acme-corp-2026
+    ↓
+Astro SSR:
+  - Read clients/acme-corp-2026/.factory-state/state.json
+  - Read plan.md (parsed)
+  - Read recent decisions
+  - Render shell
+    ↓
 Browser receives HTML, hydrates islands
-↓
+    ↓
 LiveEventFeed island connects to SSE:
-GET /api/projects/acme-corp-2026/stream
-↓
+  GET /api/projects/acme-corp-2026/stream
+    ↓
 Server: SSE endpoint
-- Tails .factory-state/logs/orchestrator.jsonl
-- On new line: emit "event" SSE message
-- Heartbeat every 30s
-↓
+  - Tails .factory-state/logs/orchestrator.jsonl
+  - On new line: emit "event" SSE message
+  - Heartbeat every 30s
+    ↓
 Browser: receives events, updates UI
+```
 
 ### 11.4 Control flow: start project
-User clicks "Start" button
-↓
-POST /api/projects/acme-corp-2026/start
-↓
-Server:
 
-- Validate request (CF Access verified user)
-- Run: systemctl --user start factory@acme-corp-2026
-- Wait for service active
-- Return 200 OK ↓ Browser:
-- Update UI status
-- LiveEventFeed continues to receive new events
+```
+User clicks "Start" button
+    ↓
+POST /api/projects/acme-corp-2026/start
+    ↓
+Server:
+  - Validate request (CF Access verified user)
+  - Run: systemctl --user start factory@acme-corp-2026
+  - Wait for service active
+  - Return 200 OK
+    ↓
+Browser:
+  - Update UI status
+  - LiveEventFeed continues to receive new events
+```
 
 ---
 

@@ -24,6 +24,7 @@ Když potřebuješ user story pro implementační task, najdeš ji zde.
 Rychi Design Factory se skládá ze tří oddělených, ale propojených 
 systémů. Každý má vlastní user, vlastní purpose, vlastní deliverables.
 
+```
 ┌──────────────┐      ┌──────────────┐      ┌──────────────┐
 │   Intake     │ ───> │   Factory    │ ───> │  Dashboard   │
 │              │      │              │      │              │
@@ -31,18 +32,19 @@ systémů. Každý má vlastní user, vlastní purpose, vlastní deliverables.
 │ Desktop      │      │ server       │      │ (homelab)    │
 │              │      │ (homelab)    │      │              │
 └──────────────┘      └──────────────┘      └──────────────┘
-produkuje            produkuje            vizualizuje
-spec/               .factory-state/      a ovládá
-workspace/           factory
-deploy URL
+   produkuje            produkuje            vizualizuje
+   spec/               .factory-state/      a ovládá
+                       workspace/           factory
+                       deploy URL
+```
 
 Každý systém má vlastní sekci níže.
 
 ---
 
-# 1. Intake System
+## 1. Intake System
 
-## 1.1 Účel
+### 1.1 Účel
 
 Intake System asistuje Jirkovi během briefu klienta. Vede strukturovanou
 konverzaci, navrhuje otázky, zachytává odpovědi, generuje validovaný
@@ -51,12 +53,12 @@ spec pro factory.
 **Není to klientský samoobslužný nástroj.** Klient se nepřihlašuje, 
 neformuluje brief sám. Jirka je v procesu — Intake je jeho asistent.
 
-## 1.2 Users
+### 1.2 Users
 
 **Primary:** Jirka — během video callu / osobního setkání s klientem
 nebo po něm při zpracování poznámek.
 
-## 1.3 Implementace
+### 1.3 Implementace
 
 **Claude Desktop Project** s:
 - System prompt definujícím roli a workflow
@@ -67,9 +69,9 @@ nebo po něm při zpracování poznámek.
 Žádný custom development, žádný hosting — používáme existující 
 Claude Desktop infrastrukturu.
 
-## 1.4 User Stories
+### 1.4 User Stories
 
-### US-IN-001: Vedení briefu s klientem
+#### US-IN-001: Vedení briefu s klientem
 
 **As a** Jirka  
 **I want to** mít AI asistenta během video callu s klientem  
@@ -82,7 +84,7 @@ Claude Desktop infrastrukturu.
 - Reaguje real-time během konverzace
 - Pracuje v češtině
 
-### US-IN-002: Detekce archetypu
+#### US-IN-002: Detekce archetypu
 
 **As a** Jirka  
 **I want to** aby AI rozpoznal typ projektu z prvních pár vět  
@@ -94,7 +96,7 @@ Claude Desktop infrastrukturu.
 - Při nejednoznačnosti se zeptá pro upřesnění
 - Po určení archetypu adaptuje otázky
 
-### US-IN-003: Progresivní zachytávání
+#### US-IN-003: Progresivní zachytávání
 
 **As a** Jirka  
 **I want to** zachytávat informace postupně, ne najednou  
@@ -106,7 +108,7 @@ Claude Desktop infrastrukturu.
 - Sumarizuje co dosud víme po každém bloku
 - Klient může brief rozdělit do více sezení
 
-### US-IN-004: Detekce red flags
+#### US-IN-004: Detekce red flags
 
 **As a** Jirka  
 **I want to** aby AI varoval před problematickými briefy  
@@ -118,7 +120,7 @@ Claude Desktop infrastrukturu.
 - Navrhuje doplnění nebo decline
 - Konkrétní příklady red flags v knowledge base
 
-### US-IN-005: Generace multi-file spec
+#### US-IN-005: Generace multi-file spec
 
 **As a** Jirka  
 **I want to** dostat strukturovaný spec po skončení intake  
@@ -131,7 +133,7 @@ Claude Desktop infrastrukturu.
 - Soubory jsou human-readable
 - Spec obsahuje audit trail z konverzace
 
-### US-IN-006: Iterace nad spec
+#### US-IN-006: Iterace nad spec
 
 **As a** Jirka  
 **I want to** upravovat spec po skončení konverzace  
@@ -143,7 +145,7 @@ Claude Desktop infrastrukturu.
 - Verzuje změny v intake-journal.md
 - Final approval označí spec jako "ready"
 
-### US-IN-007: Transfer na server
+#### US-IN-007: Transfer na server
 
 **As a** Jirka  
 **I want to** snadno přenést spec z Claude Desktop na server  
@@ -155,7 +157,7 @@ Claude Desktop infrastrukturu.
 - Auto-validace při příjmu na serveru
 - Notifikace při úspěchu/chybě
 
-## 1.5 Out of scope (V1)
+### 1.5 Out of scope (V1)
 
 - Klientský samoobslužný intake interface
 - Multi-language support (jen čeština + angličtina)
@@ -166,9 +168,9 @@ Claude Desktop infrastrukturu.
 
 ---
 
-# 2. Factory System
+## 2. Factory System
 
-## 2.1 Účel
+### 2.1 Účel
 
 Factory autonomně staví web podle validovaného spec. Skládá se z 
 orchestrátora, specializovaných agentů, knowledge base, hooks layer.
@@ -176,13 +178,13 @@ orchestrátora, specializovaných agentů, knowledge base, hooks layer.
 **Cíl:** od validovaného spec po deployed staging URL bez intervence.
 Lidská kontrola jen na designovaných human gates.
 
-## 2.2 Users
+### 2.2 Users
 
 **Primary:** Jirka — supervize, schvalování gates, řešení blockerů.
 
 **Secondary (future V2+):** Asistent, který pomáhá Jirkovi se škálováním.
 
-## 2.3 Implementace
+### 2.3 Implementace
 
 - Linux server (homelab)
 - Opencode jako agent runtime
@@ -191,9 +193,9 @@ Lidská kontrola jen na designovaných human gates.
 - Git per projekt + factory-core repo
 - File-based state, žádná databáze
 
-## 2.4 User Stories
+### 2.4 User Stories
 
-### US-FA-001: Bootstrap projektu
+#### US-FA-001: Bootstrap projektu
 
 **As a** Jirka  
 **I want to** spustit factory pro nový projekt jedním příkazem  
@@ -205,7 +207,7 @@ Lidská kontrola jen na designovaných human gates.
 - Vytvoří git repo, .factory-state/, plan.md
 - Připraví na první iteraci
 
-### US-FA-002: Autonomní orchestrace
+#### US-FA-002: Autonomní orchestrace
 
 **As a** Jirka  
 **I want to** factory běžela sama bez mé intervence  
@@ -217,7 +219,7 @@ Lidská kontrola jen na designovaných human gates.
 - Logy jsou strukturované a searchable
 - Recovery z padu trivial (stateless pattern)
 
-### US-FA-003: Multi-stack support
+#### US-FA-003: Multi-stack support
 
 **As a** Jirka  
 **I want to** factory zvládala různé tech stacks  
@@ -232,7 +234,7 @@ Lidská kontrola jen na designovaných human gates.
 **Acceptance criteria post-V1:**
 - Přidání dalšího stacku trvá < 1 den (1 YAML + 1 skill)
 
-### US-FA-004: Architecture phase
+#### US-FA-004: Architecture phase
 
 **As a** Jirka  
 **I want to** factory navrhla informační architekturu projektu  
@@ -244,7 +246,7 @@ Lidská kontrola jen na designovaných human gates.
 - Vytvoří technical-plan.md (stack rationale, dependencies)
 - Identifikuje potenciální technické problémy
 
-### US-FA-005: Design phase s Figma
+#### US-FA-005: Design phase s Figma
 
 **As a** Jirka  
 **I want to** factory generovala design v Figmě  
@@ -257,7 +259,7 @@ Lidská kontrola jen na designovaných human gates.
 - Notifikace, když je design ready
 - Sub-fáze 2c: extraction tokens + components manifest po schválení
 
-### US-FA-006: Foundation phase
+#### US-FA-006: Foundation phase
 
 **As a** Jirka  
 **I want to** factory inicializovala kód projektu ze stack template  
@@ -269,7 +271,7 @@ Lidská kontrola jen na designovaných human gates.
 - Base configuration (TypeScript, Tailwind, atd.)
 - `npm run dev` funguje
 
-### US-FA-007: Content phase
+#### US-FA-007: Content phase
 
 **As a** Jirka  
 **I want to** factory generovala copy pro stránky  
@@ -282,7 +284,7 @@ Lidská kontrola jen na designovaných human gates.
 - Output je v CMS schema (Sanity/Payload)
 - Klient může upravit přes CMS Studio
 
-### US-FA-008: Build phase
+#### US-FA-008: Build phase
 
 **As a** Jirka  
 **I want to** factory postavila všechny stránky podle designu  
@@ -295,7 +297,7 @@ Lidská kontrola jen na designovaných human gates.
 - Průběžný design audit každých 5 stránek
 - Workspace je deployable
 
-### US-FA-009: QA phase
+#### US-FA-009: QA phase
 
 **As a** Jirka  
 **I want to** factory prošla audity před deploy  
@@ -310,7 +312,7 @@ Lidská kontrola jen na designovaných human gates.
 - E2E test runner: critical flows pass
 - Code reviewer: bez kritických issues
 
-### US-FA-010: Polish phase
+#### US-FA-010: Polish phase
 
 **As a** Jirka  
 **I want to** factory navrhla animace pro polish  
@@ -322,7 +324,7 @@ Lidská kontrola jen na designovaných human gates.
 - Subtle, ne distracting
 - Schválení přes Dashboard před implementací
 
-### US-FA-011: Deploy phase
+#### US-FA-011: Deploy phase
 
 **As a** Jirka  
 **I want to** factory nasadila web na staging  
@@ -334,7 +336,7 @@ Lidská kontrola jen na designovaných human gates.
 - Schválení přes Dashboard před production deploy
 - Production deploy s rollback možností
 
-### US-FA-012: Self-healing
+#### US-FA-012: Self-healing
 
 **As a** Jirka  
 **I want to** factory řešila běžné problémy sama  
@@ -346,7 +348,7 @@ Lidská kontrola jen na designovaných human gates.
 - Healer používá known-patterns library
 - Po úspěchu navrhne nový pattern do pending/
 
-### US-FA-013: Budget controls
+#### US-FA-013: Budget controls
 
 **As a** Jirka  
 **I want to** mít hard limits na náklady projektu  
@@ -359,7 +361,7 @@ Lidská kontrola jen na designovaných human gates.
 - Auto-stop na 100 % budgetu
 - Cost tracking per agent invocation
 
-### US-FA-014: Pause and resume
+#### US-FA-014: Pause and resume
 
 **As a** Jirka  
 **I want to** zastavit a později obnovit factory  
@@ -371,7 +373,7 @@ Lidská kontrola jen na designovaných human gates.
 - Resume pokračuje od posledního state
 - Žádná ztráta práce
 
-### US-FA-015: Per-project isolation
+#### US-FA-015: Per-project isolation
 
 **As a** Jirka  
 **I want to** každý projekt měl vlastní git repo a environment  
@@ -383,7 +385,7 @@ Lidská kontrola jen na designovaných human gates.
 - Žádné shared state kromě factory-core
 - Git push na privátní GitHub repo automaticky
 
-## 2.5 Out of scope (V1)
+### 2.5 Out of scope (V1)
 
 - Paralelní běh více projektů současně
 - Production deploy bez human approval
@@ -397,22 +399,22 @@ Lidská kontrola jen na designovaných human gates.
 
 ---
 
-# 3. Dashboard
+## 3. Dashboard
 
-## 3.1 Účel
+### 3.1 Účel
 
 Dashboard je tvůj kontrolní panel. Vizualizuje aktuální stav továrny,
 umožňuje ovládat běh, řešit blockery, sledovat náklady.
 
 **Cíl:** veškerá supervize bez SSH na server. Z mobilu i z desktopu.
 
-## 3.2 Users
+### 3.2 Users
 
 **Primary V1:** Jirka — denní použití, ovládání, monitoring.
 
 **Secondary (V2+):** Klient — read-only přístup ke svému projektu.
 
-## 3.3 Implementace
+### 3.3 Implementace
 
 - Astro 5 hybrid mode + React islands
 - Tailwind 4 + shadcn/ui
@@ -422,9 +424,9 @@ umožňuje ovládat běh, řešit blockery, sledovat náklady.
 - Cloudflare Tunnel + Access pro veřejný přístup
 - factory.digitaldesigner.cz
 
-## 3.4 User Stories — V1 MVP
+### 3.4 User Stories — V1 MVP
 
-### US-DA-001: Project list
+#### US-DA-001: Project list
 
 **As a** Jirka  
 **I want to** vidět seznam všech projektů s status  
@@ -436,7 +438,7 @@ umožňuje ovládat běh, řešit blockery, sledovat náklady.
 - Click → detail view
 - Real-time update (SSE)
 
-### US-DA-002: Project detail
+#### US-DA-002: Project detail
 
 **As a** Jirka  
 **I want to** vidět detail aktivního projektu  
@@ -449,7 +451,7 @@ umožňuje ovládat běh, řešit blockery, sledovat náklady.
 - Recent decisions z decisions.jsonl
 - Pending blockers s CTA
 
-### US-DA-003: Agent graph visualization
+#### US-DA-003: Agent graph visualization
 
 **As a** Jirka  
 **I want to** vidět vizuální diagram běžících agentů  
@@ -462,7 +464,7 @@ umožňuje ovládat běh, řešit blockery, sledovat náklady.
 - Agent → orchestrator relationship
 - Click na agent → detail jeho práce
 
-### US-DA-004: Server metrics
+#### US-DA-004: Server metrics
 
 **As a** Jirka  
 **I want to** vidět CPU/RAM/disk usage serveru  
@@ -475,7 +477,7 @@ umožňuje ovládat běh, řešit blockery, sledovat náklady.
 - Network I/O
 - Updated every 10 sekund
 
-### US-DA-005: Token & cost tracking
+#### US-DA-005: Token & cost tracking
 
 **As a** Jirka  
 **I want to** vidět token consumption a cost  
@@ -488,7 +490,7 @@ umožňuje ovládat běh, řešit blockery, sledovat náklady.
 - Color coding: green < 50 %, yellow 50-90 %, red > 90 %
 - Alerts při 75 % a 95 % thresholds
 
-### US-DA-006: Start/stop/pause control
+#### US-DA-006: Start/stop/pause control
 
 **As a** Jirka  
 **I want to** ovládat factory přes dashboard  
@@ -501,7 +503,7 @@ umožňuje ovládat běh, řešit blockery, sledovat náklady.
 - Stop project (s confirmation, neztratí state)
 - Restart project (po fixu issues)
 
-### US-DA-007: Task-level granular control
+#### US-DA-007: Task-level granular control
 
 **As a** Jirka  
 **I want to** zastavit po konkrétní task  
@@ -512,7 +514,7 @@ umožňuje ovládat běh, řešit blockery, sledovat náklady.
 - Vizualizace, který task se právě dokončuje
 - Resume po pauze pokračuje na další task v plánu
 
-### US-DA-008: Blocker resolution
+#### US-DA-008: Blocker resolution
 
 **As a** Jirka  
 **I want to** řešit blockery přes intuitivní UI  
@@ -527,7 +529,7 @@ umožňuje ovládat běh, řešit blockery, sledovat náklady.
 - One-click resolve
 - Notes/feedback při resolve
 
-### US-DA-009: Live event feed
+#### US-DA-009: Live event feed
 
 **As a** Jirka  
 **I want to** sledovat real-time co factory dělá  
@@ -540,7 +542,7 @@ umožňuje ovládat běh, řešit blockery, sledovat náklady.
 - Auto-scroll s pause-on-hover
 - Color coding per event type
 
-### US-DA-010: Logs & timeline
+#### US-DA-010: Logs & timeline
 
 **As a** Jirka  
 **I want to** procházet historii projektu  
@@ -553,7 +555,7 @@ umožňuje ovládat běh, řešit blockery, sledovat náklady.
 - Export do JSON nebo Markdown
 - Permalink na konkrétní event
 
-### US-DA-011: Spec viewer/editor
+#### US-DA-011: Spec viewer/editor
 
 **As a** Jirka  
 **I want to** prohlížet a upravit spec přes dashboard  
@@ -566,7 +568,7 @@ umožňuje ovládat běh, řešit blockery, sledovat náklady.
 - Re-trigger validation po edit
 - Version history
 
-### US-DA-012: Telegram notifications
+#### US-DA-012: Telegram notifications
 
 **As a** Jirka  
 **I want to** dostávat alerty na Telegram  
@@ -579,7 +581,7 @@ umožňuje ovládat běh, řešit blockery, sledovat náklady.
 - Customizable per project
 - Pause notifications option
 
-### US-DA-013: Authentication
+#### US-DA-013: Authentication
 
 **As a** Jirka  
 **I want to** dashboard chráněný auth wallu  
@@ -592,7 +594,7 @@ umožňuje ovládat běh, řešit blockery, sledovat náklady.
 - Logout option
 - Future-ready pro klienty
 
-### US-DA-014: Mobile responsive
+#### US-DA-014: Mobile responsive
 
 **As a** Jirka  
 **I want to** ovládat factory z telefonu  
@@ -604,31 +606,31 @@ umožňuje ovládat běh, řešit blockery, sledovat náklady.
 - Klíčové akce dostupné na mobilu (resolve blocker, pause, view status)
 - Komplexní views (spec edit) optionally desktop-only
 
-## 3.5 User Stories — V2+ (out of V1)
+### 3.5 User Stories — V2+ (out of V1)
 
-### US-DA-101: Client read-only view
+#### US-DA-101: Client read-only view
 
 Read-only přístup pro klienta k jeho projektu.
 Selektivní informace (žádné technické detaily, tokens, costs).
 
-### US-DA-102: Known patterns review UI
+#### US-DA-102: Known patterns review UI
 
 UI pro review pending patterns a archetypes navržených healerem.
 Approve/reject/edit flow.
 
-### US-DA-103: Multi-project aggregate views
+#### US-DA-103: Multi-project aggregate views
 
 Cross-project metrics, monthly cost summary, capacity planning.
 
-### US-DA-104: Figma embedded preview
+#### US-DA-104: Figma embedded preview
 
 Embedded Figma frame v project detail pro rychlý design check.
 
-### US-DA-105: Native mobile app
+#### US-DA-105: Native mobile app
 
 iOS/Android wrapper kolem dashboard pro push notifications.
 
-## 3.6 Out of scope (V1)
+### 3.6 Out of scope (V1)
 
 - Multi-tenant (per-uživatel oddělené factory instance)
 - Klientské self-service onboarding
@@ -640,11 +642,11 @@ iOS/Android wrapper kolem dashboard pro push notifications.
 
 ---
 
-# 4. Cross-system requirements
+## 4. Cross-system requirements
 
 Některé požadavky překrývají všechny tři systémy.
 
-## 4.1 Dokumentace
+### 4.1 Dokumentace
 
 **Princip:** Dokumentace je first-class artifact, ne afterthought.
 
@@ -655,7 +657,7 @@ Některé požadavky překrývají všechny tři systémy.
 - README.md v každém repo
 - Automatická aktualizace generated docs (schemas → markdown)
 
-## 4.2 Pracovní jazyk
+### 4.2 Pracovní jazyk
 
 **Princip:** Český jazyk pro user-facing texty, anglický pro technické artifacts.
 
@@ -667,7 +669,7 @@ Některé požadavky překrývají všechny tři systémy.
 - Dokumentace: anglicky (s případnými českými poznámkami)
 - Inline komentáře v kódu: anglicky
 
-## 4.3 Versioning
+### 4.3 Versioning
 
 **Princip:** Semantic versioning pro factory-core, project-specific 
 version tracking pro klientské weby.
@@ -678,7 +680,7 @@ version tracking pro klientské weby.
 - Schema migrations dokumentované
 - Breaking changes v changelog s migration guide
 
-## 4.4 Backups
+### 4.4 Backups
 
 **Princip:** Žádný single point of failure pro data.
 
@@ -689,7 +691,7 @@ version tracking pro klientské weby.
 - Server image: weekly Time Machine nebo equivalent
 - API klíče: password manager + sealed envelope offline
 
-## 4.5 Security
+### 4.5 Security
 
 **Princip:** Defense in depth, žádné secrets v repu.
 
@@ -702,7 +704,7 @@ version tracking pro klientské weby.
 - Hooks enforce per-agent permissions
 - Per-project isolation (nikdy cross-projekt access)
 
-## 4.6 Observability
+### 4.6 Observability
 
 **Princip:** Pokud něco selže, musím vědět co a proč.
 
@@ -714,7 +716,7 @@ version tracking pro klientské weby.
 - Export functionality
 - Alert thresholds configurable
 
-## 4.7 Performance
+### 4.7 Performance
 
 **Princip:** Factory je tool, ne load-bearing infrastruktura. Performance 
 musí být OK, ne perfekt.
@@ -725,7 +727,7 @@ musí být OK, ne perfekt.
 - API response < 1 sekunda (typical)
 - Factory iteration overhead < 5 sekund (orchestrator decision time)
 
-## 4.8 Accessibility
+### 4.8 Accessibility
 
 **Princip:** Dashboard musí být použitelný i s nestandardním inputem.
 
@@ -738,7 +740,7 @@ musí být OK, ne perfekt.
 
 ---
 
-# 5. Acceptance criteria summary
+## 5. Acceptance criteria summary
 
 Pro rychlý reference, success criteria celého projektu (z PROJECT-BRIEF.md):
 
@@ -762,9 +764,9 @@ Factory běží přes noc bez intervence. Telegram alerty < 2/den.
 
 ---
 
-# 6. Dependencies & assumptions
+## 6. Dependencies & assumptions
 
-## 6.1 Externí závislosti
+### 6.1 Externí závislosti
 
 - **Opencode** musí zůstat ve vývoji a podporovat MCP
 - **Figma MCP** musí podporovat write capabilities
@@ -773,14 +775,14 @@ Factory běží přes noc bez intervence. Telegram alerty < 2/den.
 - **Opencode Go subscription** musí poskytovat plánovaný value
 - **Anthropic** musí udržovat frontend-design skill
 
-## 6.2 Předpoklady
+### 6.2 Předpoklady
 
 - Jirkův homelab server běží 24/7
 - Domácí internet má rozumnou stabilitu
 - Jirka má kapacitu věnovat ~10-20 hodin/týden vývoji factory
 - Klienti Rychi Design budou ochotni přijmout AI-assisted workflow
 
-## 6.3 Rizika z dependencies
+### 6.3 Rizika z dependencies
 
 - Figma MCP write API nestabilní → fallback ruční export tokens
 - Opencode Go rate limity → fallback Gemini API
@@ -789,7 +791,7 @@ Factory běží přes noc bez intervence. Telegram alerty < 2/den.
 
 ---
 
-# 7. Změny tohoto dokumentu
+## 7. Změny tohoto dokumentu
 
 PRD se mění při:
 - Změně scope V1 (přidání/odebrání feature)
