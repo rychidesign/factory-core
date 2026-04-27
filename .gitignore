@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+.cache/
+.astro/
+.next/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+secrets.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*~
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
