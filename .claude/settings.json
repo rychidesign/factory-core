@@ -19,7 +19,15 @@
       "Bash(git -C /home/rychi/claude/rychidesign-factory branch -vv)",
       "Bash(git -C /home/rychi/claude/rychidesign-factory remote -v)",
       "Bash(git ls-remote *)",
-      "Bash(command -v tree)"
+      "Bash(command -v tree)",
+      "Bash(pnpm --version)",
+      "Bash(chmod +x tools/spec-validate)",
+      "Bash(pnpm install *)",
+      "Bash(node tools/spec-validate examples/specs/acme-precision-2026/)",
+      "Bash(node tools/spec-validate examples/specs/eva-portfolio-2026/)",
+      "Bash(node tools/spec-validate examples/specs/bistro-narozi-2026/)",
+      "Bash(pnpm spec:validate:examples)",
+      "Bash(git commit *)"
     ]
   }
 }
