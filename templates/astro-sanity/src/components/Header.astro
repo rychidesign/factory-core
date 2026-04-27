@@ -1,0 +1,33 @@
+---
+import { fetchOrMock } from '~/lib/sanity';
+import type { SiteSettings } from '~/sanity/schemas/siteSettings';
+
+const SETTINGS_QUERY = `*[_type == "siteSettings"][0]{
+  brandName,
+  navItems[]{ label, href }
+}`;
+
+const settings = await fetchOrMock<SiteSettings>(SETTINGS_QUERY, {}, {
+  brandName: 'Brand',
+  navItems: [
+    { label: 'Služby', href: '/sluzby' },
+    { label: 'O nás', href: '/o-nas' },
+    { label: 'Kontakt', href: '/kontakt' },
+  ],
+});
+---
+
+<header class="sticky top-0 z-30 border-b border-border bg-bg/80 backdrop-blur">
+  <div class="mx-auto flex h-16 max-w-(--max-content) items-center justify-between px-4">
+    <a href="/" class="font-semibold tracking-tight">{settings.brandName}</a>
+    <nav aria-label="Hlavní navigace">
+      <ul class="flex items-center gap-6">
+        {settings.navItems.map((item) => (
+          <li>
+            <a href={item.href} class="text-sm text-muted hover:text-fg">{item.label}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+</header>

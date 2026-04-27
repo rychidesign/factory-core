@@ -1,0 +1,31 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { fetchOrMock } from '~/lib/sanity';
+
+const SETTINGS_QUERY = `*[_type == "siteSettings"][0]{ brandName }`;
+const settings = await fetchOrMock<{ brandName: string }>(SETTINGS_QUERY, {}, {
+  brandName: 'Rychi Design Factory',
+});
+---
+
+<BaseLayout title={settings.brandName} description="Starter scaffolded by Rychi Design Factory.">
+  <section class="mx-auto max-w-(--max-content) px-4 py-(--spacing-section)">
+    <p class="mb-4 text-sm uppercase tracking-wider text-muted">astro-sanity track</p>
+    <h1 class="text-(length:--text-hero) leading-tight tracking-tight">
+      {settings.brandName}
+    </h1>
+    <p class="mt-6 max-w-prose text-(length:--text-lead) text-muted">
+      Tahle stránka je výchozí bod. Nastav <code>SANITY_PROJECT_ID</code>
+      a vyplň Studio, abys viděl(a) reálný obsah. Zatím renderuje mock data
+      definovaná v <code>src/lib/sanity.ts</code>.
+    </p>
+    <div class="mt-10 flex flex-wrap gap-3">
+      <a href="/sluzby" class="inline-flex h-11 items-center rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground hover:opacity-90">
+        Co umíme
+      </a>
+      <a href="/kontakt" class="inline-flex h-11 items-center rounded-md border border-border px-6 text-sm font-medium hover:bg-secondary">
+        Napsat
+      </a>
+    </div>
+  </section>
+</BaseLayout>

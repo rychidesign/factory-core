@@ -1,0 +1,113 @@
+# Stack catalog
+#
+# Defines every supported stack track. The architect-technical agent reads
+# this in Phase 1 to confirm or pick spec/stack.yaml.track.
+#
+# Adding a new track requires:
+#   1. New entry here.
+#   2. Matching enum value in schemas/spec/stack.schema.json (.track) and the
+#      TRACK_CMS map in tools/spec-validate.
+#   3. New template under templates/<track>/ (or status: v1-placeholder).
+#   4. Skill packages under .opencode/skills/ for any new framework / CMS.
+#   5. ADR entry if the choice has interesting trade-offs.
+
+schema_version: "1.0"
+
+stacks:
+
+  astro-sanity:
+    type: content-static
+    description: >-
+      Marketingové weby, portfolia, blogy, dokumentace, B2B services,
+      malé a střední firmy. Default content track. Statický build z CMS.
+    best_for:
+      - marketing
+      - portfolio
+      - docs
+      - blog
+      - b2b-services
+      - small-firm
+    required_skills:
+      - astro
+      - sanity
+      - tailwind
+      - frontend-design
+    deployment:
+      preferred: cloudflare-pages
+      alternatives: [vercel, netlify]
+    template_repo: templates/astro-sanity
+    cms:
+      type: hosted
+      provider: sanity
+      free_tier_sufficient_for:
+        max_documents: 10000
+        max_users: 3
+        max_api_calls_per_month: 100000
+    rationale_ref: ADR-0014
+
+  astro-payload:
+    type: content-static
+    description: >-
+      Self-hosted CMS, plná kontrola dat. Pro klienty vyžadující on-premise
+      data, specifickou compliance, nebo kde Sanity rate limity nestačí.
+    best_for:
+      - data-sensitive-clients
+      - clients-with-it-team
+      - large-content-volumes
+    required_skills:
+      - astro
+      - payload
+      - tailwind
+      - frontend-design
+    deployment:
+      preferred: vercel
+      alternatives: [railway, self-hosted]
+    template_repo: templates/astro-payload
+    cms:
+      type: self-hosted
+      provider: payload
+      hosting_required: true
+      hosting_cost_estimate_monthly_usd: [20, 40]
+    rationale_ref: ADR-0014
+
+  nextjs-sanity:
+    type: content-dynamic
+    description: >-
+      Marketing + portál s autentizací. Pro projekty s gated content,
+      member areas, nebo komplexnější dynamickou logikou serverside.
+    best_for:
+      - marketing-with-portal
+      - member-area
+      - gated-content
+    required_skills:
+      - nextjs
+      - sanity
+      - clerk
+      - tailwind
+      - frontend-design
+    deployment:
+      preferred: vercel
+      alternatives: [cloudflare-pages]
+    template_repo: templates/nextjs-sanity
+    cms:
+      type: hosted
+      provider: sanity
+    auth:
+      provider: clerk
+      free_tier_users: 10000
+
+  webflow:
+    type: no-code
+    description: >-
+      Klient chce vizuálně self-edit přes Webflow Designer. V1 je placeholder
+      track — registrace existuje, plná pipeline (Webflow API generation,
+      naming validator) přijde post-V1 podle reálné poptávky.
+    best_for:
+      - clients-wanting-full-control
+      - simple-marketing-without-cms
+    required_skills:
+      - webflow-api
+    deployment:
+      preferred: webflow-hosting
+    template_repo: templates/webflow-stub
+    status: v1-placeholder
