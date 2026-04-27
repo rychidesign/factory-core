@@ -31,7 +31,11 @@
       "Bash(chmod +x tools/validate-json tools/validate-jsonl tools/validate-plan)",
       "Bash(chmod +x tools/validate-examples.sh)",
       "Bash(pnpm validate:examples)",
-      "Bash(git rm *)"
+      "Bash(git rm *)",
+      "Bash(git clone *)",
+      "Bash(pnpm build *)",
+      "Bash(pnpm typecheck *)",
+      "Bash(pnpm lint *)"
     ]
   }
 }
