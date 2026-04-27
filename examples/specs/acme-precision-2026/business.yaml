@@ -1,0 +1,46 @@
+legal_name: Acme Precision s.r.o.
+display_name: Acme Precision
+industry: Industriální automatizace
+founded_year: 2008
+size: small
+geography:
+  countries: ["CZ", "SK", "DE"]
+  regions: ["Středočeský kraj", "Bavaria"]
+  remote_global: false
+
+usp: >-
+  Robotické výrobní linky uváděné do provozu za 6 týdnů místo obvyklých
+  6 měsíců. Jediná česká firma s vlastním simulátorem digitálního dvojčete.
+
+tone_of_voice:
+  keywords:
+    - technický
+    - sebevědomý
+    - konkrétní
+    - bez nadsázky
+  examples_we_like:
+    - "Prováděli jsme integraci pro 14 závodů. Ani v jednom nedošlo k překročení rozpočtu."
+    - "Když řekneme 6 týdnů, znamená to 6 týdnů."
+  examples_we_avoid:
+    - "Jsme vaším partnerem na cestě k digitální transformaci"
+    - "Posouváme hranice toho, co je možné"
+  formality: neutral
+  person: first-plural
+
+existing_brand:
+  has_logo: true
+  logo_path: client-assets/logo/acme-precision.svg
+  has_brand_book: false
+  primary_colors: ["#0B2545", "#F1B500"]
+  primary_fonts: ["IBM Plex Sans", "IBM Plex Mono"]
+  rebrand_in_scope: false
+
+competitors:
+  - name: Robotec CE
+    url: https://example-robotec.cz
+    relation: direct
+    notes: Větší konkurent, korporátní web, používáme jako anti-reference.
+  - name: KUKA
+    url: https://www.kuka.com
+    relation: aspirational
+    notes: Globální brand, líbí se nám čistota typografie a strukturovaný case studies layout.

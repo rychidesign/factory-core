@@ -1,0 +1,81 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://factory-core.rychidesign/schemas/spec/meta.schema.json",
+  "title": "Spec / meta",
+  "description": "Administrative metadata for a client project spec. One file per project at spec/meta.yaml.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "project_id",
+    "client_name",
+    "created_at",
+    "last_updated",
+    "archetype",
+    "language",
+    "lock_status"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+(\\.\\d+)?$",
+      "description": "Spec schema version this file targets (semver, e.g. \"1.0\")."
+    },
+    "project_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "minLength": 3,
+      "maxLength": 64,
+      "description": "Stable, kebab-case project identifier. Used as directory name under clients/, systemd instance name, git repo name."
+    },
+    "client_name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable client name as used in correspondence."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the intake started (ISO-8601)."
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the spec was last edited (ISO-8601)."
+    },
+    "archetype": {
+      "type": "string",
+      "enum": [
+        "small-b2b-services",
+        "ecommerce-small",
+        "portfolio-creative",
+        "restaurant-hospitality",
+        "saas-landing",
+        "other"
+      ],
+      "description": "Detected or chosen archetype. Drives intake question priorities and stack defaults. Use \"other\" only when no archetype clearly fits — avoid for V1."
+    },
+    "language": {
+      "type": "string",
+      "pattern": "^[a-z]{2}(-[A-Z]{2})?$",
+      "description": "Primary content language, BCP-47 short form (e.g. \"cs\", \"cs-CZ\", \"en-GB\")."
+    },
+    "lock_status": {
+      "type": "string",
+      "enum": ["draft", "complete", "validated", "approved", "locked"],
+      "description": "Spec lifecycle stage. Factory only consumes specs at \"approved\" or \"locked\". See ADR-0003."
+    },
+    "intake_journal": {
+      "type": "string",
+      "description": "Relative path to the intake-journal.md audit trail. Defaults to ../intake-journal.md."
+    },
+    "operator": {
+      "type": "string",
+      "description": "Person who conducted intake (e.g. \"Jirka\")."
+    },
+    "notes": {
+      "type": "string",
+      "description": "Free-form notes that don't fit other spec files."
+    }
+  }
+}

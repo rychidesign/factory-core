@@ -1,0 +1,168 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://factory-core.rychidesign/schemas/spec/scope.schema.json",
+  "title": "Spec / scope",
+  "description": "What the site contains: pages, features, integrations. Concrete deliverables that the factory builds.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["pages", "estimated_pages"],
+  "properties": {
+    "pages": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "path", "name", "template"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^PG-\\d{3}$",
+            "description": "Stable page id, e.g. \"PG-001\"."
+          },
+          "path": {
+            "type": "string",
+            "pattern": "^/[a-z0-9\\-/\\[\\]:.]*$",
+            "description": "URL path. Use /[slug] for dynamic CMS-driven routes (e.g. /case-studies/[slug])."
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Human-readable page name as shown in IA discussions and navigation."
+          },
+          "template": {
+            "type": "string",
+            "enum": [
+              "homepage",
+              "static",
+              "listing",
+              "detail",
+              "form",
+              "404",
+              "legal",
+              "landing"
+            ],
+            "description": "Layout family. Drives which builder template the frontend-builder uses."
+          },
+          "cms_managed": {
+            "type": "boolean",
+            "default": true,
+            "description": "If true, copy and structured fields come from the CMS. If false, content is hard-coded in the page component (typical for /404, legal pages)."
+          },
+          "priority": {
+            "type": "string",
+            "enum": ["must", "should", "could"],
+            "default": "must",
+            "description": "Whether the page must ship at launch. \"could\" pages may slip without blocking deploy."
+          },
+          "primary_cta": {
+            "type": "string",
+            "description": "Primary call-to-action label or intent (e.g. \"Domluvit konzultaci\", \"Stáhnout PDF\")."
+          },
+          "personas": {
+            "type": "array",
+            "items": { "type": "string", "pattern": "^P-\\d{3}$" },
+            "description": "Personas this page primarily serves."
+          },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+    "features": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "complexity"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^F-\\d{3}$" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "complexity": {
+            "type": "string",
+            "enum": ["trivial", "simple", "medium", "complex"],
+            "description": "Rough effort estimate. \"complex\" features may push the project to a different stack track."
+          },
+          "depends_on_features": {
+            "type": "array",
+            "items": { "type": "string", "pattern": "^F-\\d{3}$" }
+          }
+        }
+      },
+      "description": "Cross-cutting capabilities that aren't a single page (search, newsletter signup, language switcher, comparator, …)."
+    },
+    "integrations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "type"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "type": {
+            "type": "string",
+            "enum": [
+              "analytics",
+              "cms",
+              "newsletter",
+              "crm",
+              "forms",
+              "payment",
+              "booking",
+              "chat",
+              "search",
+              "social",
+              "other"
+            ]
+          },
+          "provider": {
+            "type": "string",
+            "description": "Vendor name (e.g. \"Plausible\", \"Mailchimp\", \"Stripe\", \"Calendly\")."
+          },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+    "forms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "purpose", "destination"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^FRM-\\d{3}$" },
+          "purpose": { "type": "string", "description": "What the form is for (\"contact\", \"quote-request\", \"job-application\")." },
+          "fields": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Field names. Detailed schemas are produced by the cms-builder/auth-builder later."
+          },
+          "destination": {
+            "type": "string",
+            "enum": ["email", "crm", "api", "cms", "spreadsheet"]
+          },
+          "spam_protection": {
+            "type": "string",
+            "enum": ["none", "honeypot", "captcha", "turnstile"]
+          }
+        }
+      }
+    },
+    "auth_required": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, parts of the site are gated and require an auth-builder. Triggers stack rules (typically nextjs-sanity track)."
+    },
+    "multilang": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, the site has more than one content language. Must agree with audience.languages."
+    },
+    "estimated_pages": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 200,
+      "description": "Rough page count incl. CMS-driven detail pages, used for budget and capacity sizing."
+    }
+  }
+}

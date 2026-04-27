@@ -1,0 +1,16 @@
+track: astro-sanity
+track_chosen_by: intake
+track_rationale: >-
+  Bistro klient bude sám editovat menu a fotky každé 2 týdny. Sanity
+  Studio je nejjednodušší pro jejich workflow. 6 stránek + sezónní
+  varianty menu se vejdou do free tieru.
+
+lock_status: confirmed
+cms: sanity
+auth: none
+deployment: cloudflare-pages
+analytics: plausible
+
+domain:
+  primary: bistronarozi.cz
+  aliases: ["www.bistronarozi.cz"]

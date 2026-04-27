@@ -1,0 +1,70 @@
+pages:
+  - id: PG-001
+    path: /
+    name: Homepage
+    template: homepage
+    cms_managed: true
+    priority: must
+    primary_cta: "Rezervovat stůl"
+    personas: [P-001, P-002]
+  - id: PG-002
+    path: /menu
+    name: Menu
+    template: listing
+    cms_managed: true
+    priority: must
+    personas: [P-001, P-002]
+  - id: PG-003
+    path: /rezervace
+    name: Rezervace
+    template: form
+    cms_managed: false
+    priority: must
+    personas: [P-001, P-002]
+  - id: PG-004
+    path: /o-bistru
+    name: O bistru
+    template: static
+    cms_managed: true
+    priority: must
+  - id: PG-005
+    path: /kontakt
+    name: Kontakt
+    template: static
+    cms_managed: true
+    priority: must
+  - id: PG-006
+    path: /404
+    name: "Stránka nenalezena"
+    template: "404"
+    cms_managed: false
+    priority: must
+
+features:
+  - id: F-001
+    name: "Menu se sezónním přepínačem"
+    description: "Menu má aktuální + 'next week' sekci."
+    complexity: simple
+  - id: F-002
+    name: "Otevírací doba s aktuálním stavem 'open / closed'"
+    complexity: simple
+
+integrations:
+  - id: bookings-1
+    type: booking
+    provider: "Resmio"
+    notes: "Embed třetí strany, ne vlastní implementace."
+  - id: analytics-1
+    type: analytics
+    provider: "Plausible"
+
+forms:
+  - id: FRM-001
+    purpose: contact
+    fields: ["jmeno", "email", "zprava"]
+    destination: email
+    spam_protection: turnstile
+
+auth_required: false
+multilang: true
+estimated_pages: 12

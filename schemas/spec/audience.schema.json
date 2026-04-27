@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://factory-core.rychidesign/schemas/spec/audience.schema.json",
+  "title": "Spec / audience",
+  "description": "Target audiences for the site. Drives content, IA, persona-aware copy and CTAs.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["personas", "primary_persona_id"],
+  "properties": {
+    "personas": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 5,
+      "description": "Concrete personas (not segments). Keep the list short — 1 to 3 is typical, 5 is the upper bound for V1.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "role", "goals", "pain_points"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^P-\\d{3}$",
+            "description": "Stable persona id, e.g. \"P-001\". Referenced from goals.yaml and scope.yaml."
+          },
+          "name": {
+            "type": "string",
+            "description": "Short persona label, often \"<First name>, <role>\" (e.g. \"Pavel, IT manager\")."
+          },
+          "role": {
+            "type": "string",
+            "description": "Job title or relationship (e.g. \"IT manager ve výrobní firmě\", \"majitel kavárny\")."
+          },
+          "goals": {
+            "type": "array",
+            "items": { "type": "string" },
+            "minItems": 1,
+            "description": "What this persona is trying to accomplish."
+          },
+          "pain_points": {
+            "type": "array",
+            "items": { "type": "string" },
+            "minItems": 1,
+            "description": "Frustrations or unmet needs this persona has today."
+          },
+          "tech_savvy": {
+            "type": "string",
+            "enum": ["low", "medium", "high"],
+            "description": "Influences UI density, jargon, onboarding."
+          },
+          "decision_role": {
+            "type": "string",
+            "enum": ["decision-maker", "influencer", "researcher", "user", "blocker"],
+            "description": "Who they are in the buying / using process."
+          },
+          "channels": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Where they're likely to find the site (e.g. \"Google search\", \"LinkedIn\", \"doporučení\")."
+          }
+        }
+      }
+    },
+    "primary_persona_id": {
+      "type": "string",
+      "pattern": "^P-\\d{3}$",
+      "description": "Id of the persona the homepage and primary CTAs target. Must match one entry in personas[]."
+    },
+    "secondary_audiences": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Audiences that exist but aren't the primary design target (e.g. \"existing customers\", \"job applicants\", \"press\")."
+    },
+    "languages": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^[a-z]{2}(-[A-Z]{2})?$" },
+      "minItems": 1,
+      "description": "BCP-47 language codes the site must serve. Single entry by default; multi-entry triggers multilang in scope.yaml."
+    }
+  }
+}

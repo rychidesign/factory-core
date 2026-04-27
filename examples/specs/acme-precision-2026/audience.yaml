@@ -1,0 +1,36 @@
+personas:
+  - id: P-001
+    name: "Pavel, IT manager ve výrobní firmě"
+    role: IT manager / CIO ve výrobní firmě 100-500 zaměstnanců
+    goals:
+      - Najít dodavatele, který skutečně dodá v termínu.
+      - Vyhodnotit reálné case studies s čísly, ne marketingové brožury.
+      - Vyžádat si nezávazně rozsahový odhad pro interní rozpočet.
+    pain_points:
+      - Většina dodavatelů slibuje rychlou implementaci a pak skluzuje.
+      - Případové studie bez čísel jsou bezcenné.
+      - Komunikace přes obchodníka místo přes inženýry zpomaluje rozhodnutí.
+    tech_savvy: high
+    decision_role: influencer
+    channels: ["Google search", "LinkedIn", "doporučení od dodavatelů PLC"]
+
+  - id: P-002
+    name: "Hana, finanční ředitelka"
+    role: CFO / finanční ředitelka výrobní firmy
+    goals:
+      - Validovat ROI plánované investice.
+      - Pochopit cenovou strukturu a co se počítá.
+    pain_points:
+      - Skryté náklady na změnové požadavky.
+      - Nejasné platební milníky.
+    tech_savvy: medium
+    decision_role: decision-maker
+    channels: ["doporučení", "obchodní jednání"]
+
+primary_persona_id: P-001
+
+secondary_audiences:
+  - "Stávající klienti hledající servisní portál"
+  - "Studenti technických škol jako budoucí kandidáti"
+
+languages: ["cs-CZ"]

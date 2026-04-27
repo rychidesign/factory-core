@@ -1,0 +1,27 @@
+legal_name: Eva Novotná, IČO 12345678
+display_name: Eva Novotná
+industry: UX/UI design (freelance)
+size: freelancer
+geography:
+  countries: ["CZ"]
+  remote_global: true
+
+usp: >-
+  UX designerka, která dělá strategii a discovery, ne jen UI v Figmě.
+  Pracovala 6 let v interních produktových týmech, nyní jako externí
+  partner pro startup-fáze produkty.
+
+tone_of_voice:
+  keywords:
+    - osobní
+    - sebevědomý
+    - přímý
+  formality: casual
+  person: first-singular
+
+existing_brand:
+  has_logo: false
+  has_brand_book: false
+  rebrand_in_scope: true
+
+competitors: []

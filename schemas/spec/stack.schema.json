@@ -1,0 +1,81 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://factory-core.rychidesign/schemas/spec/stack.schema.json",
+  "title": "Spec / stack",
+  "description": "Tech stack decision for the project. May be \"proposed\" by intake and tightened to \"locked\" by the architect agent in Phase 1.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["track", "track_chosen_by", "lock_status", "cms", "deployment"],
+  "properties": {
+    "track": {
+      "type": "string",
+      "enum": ["astro-sanity", "astro-payload", "nextjs-sanity", "webflow"],
+      "description": "Stack track from stack-catalog.yaml. Adding a new value requires updating both this enum and the catalog."
+    },
+    "track_chosen_by": {
+      "type": "string",
+      "enum": ["intake", "architect", "operator"],
+      "description": "Who chose the track. \"intake\" = Claude Desktop intake; \"architect\" = architect-technical agent in Phase 1; \"operator\" = manual override."
+    },
+    "track_rationale": {
+      "type": "string",
+      "minLength": 10,
+      "description": "Why this track over alternatives. Saved verbatim into artifacts/architecture/technical-plan.md."
+    },
+    "lock_status": {
+      "type": "string",
+      "enum": ["proposed", "confirmed", "locked"],
+      "description": "Lifecycle of the stack choice. Factory only enters Phase 3 when locked."
+    },
+    "cms": {
+      "type": "string",
+      "enum": ["sanity", "payload", "webflow", "none"],
+      "description": "CMS provider. Must be consistent with track (e.g. astro-sanity → sanity)."
+    },
+    "auth": {
+      "type": "string",
+      "enum": ["none", "clerk", "cloudflare-access"],
+      "default": "none",
+      "description": "Auth provider when scope.auth_required is true."
+    },
+    "deployment": {
+      "type": "string",
+      "enum": ["cloudflare-pages", "vercel", "netlify", "webflow-hosting"],
+      "description": "Where the site will run."
+    },
+    "analytics": {
+      "type": "string",
+      "enum": ["none", "plausible", "umami", "google-analytics-4", "fathom"],
+      "default": "none"
+    },
+    "domain": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "primary": {
+          "type": "string",
+          "format": "hostname",
+          "description": "Production hostname (e.g. \"acme.cz\")."
+        },
+        "aliases": {
+          "type": "array",
+          "items": { "type": "string", "format": "hostname" },
+          "description": "Hostnames that should redirect or also resolve (e.g. \"www.acme.cz\")."
+        },
+        "registrar": {
+          "type": "string",
+          "description": "Where the domain is registered. Useful when DNS handover is part of the project."
+        },
+        "dns_managed_by_us": {
+          "type": "boolean",
+          "description": "If true, the project is allowed to make DNS changes; if false, the client controls DNS."
+        }
+      }
+    },
+    "third_party_keys_required": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Names of API keys / tokens the project needs (e.g. \"sanity_write_token\", \"plausible_api_key\"). Stored in ~/.config/factory/secrets.env, never in the spec."
+    }
+  }
+}

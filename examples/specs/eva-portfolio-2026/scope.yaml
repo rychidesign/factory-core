@@ -1,0 +1,39 @@
+pages:
+  - id: PG-001
+    path: /
+    name: Homepage
+    template: homepage
+    cms_managed: true
+    priority: must
+    primary_cta: "Napsat o spolupráci"
+    personas: [P-001]
+  - id: PG-002
+    path: /pripady
+    name: Případové studie
+    template: listing
+    cms_managed: true
+    priority: must
+    personas: [P-001]
+  - id: PG-003
+    path: /pripady/[slug]
+    name: Detail případu
+    template: detail
+    cms_managed: true
+    priority: must
+    personas: [P-001]
+  - id: PG-004
+    path: /o-mne
+    name: O mně
+    template: static
+    cms_managed: true
+    priority: must
+  - id: PG-005
+    path: /404
+    name: "Stránka nenalezena"
+    template: "404"
+    cms_managed: false
+    priority: must
+
+auth_required: false
+multilang: false
+estimated_pages: 7

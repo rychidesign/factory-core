@@ -1,0 +1,13 @@
+schema_version: "1.0"
+project_id: acme-precision-2026
+client_name: Acme Precision s.r.o.
+created_at: "2026-04-26T10:00:00+02:00"
+last_updated: "2026-04-27T16:30:00+02:00"
+archetype: small-b2b-services
+language: cs-CZ
+lock_status: approved
+intake_journal: ../intake-journal.md
+operator: Jirka
+notes: |
+  Reference spec — typický B2B service projekt, plně vyplněný pro
+  ověření validátoru. Klient i projekt jsou fiktivní.

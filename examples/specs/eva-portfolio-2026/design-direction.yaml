@@ -1,0 +1,34 @@
+aesthetic_keywords:
+  - editorial
+  - personal
+  - generous-whitespace
+  - text-led
+
+mood: >-
+  Osobní, ale ne intimní. Důvěryhodné, ale ne korporátní. Web čte jako
+  dobře napsaný blog s case studies, ne jako agentura.
+
+references:
+  - url: https://frankchimero.com
+    description: Personal portfolio
+    like_what: "Pomalý čtenářský rytmus, malé množství obrázků, výborná typografie."
+    weight: primary
+  - url: https://kottke.org
+    description: Independent blog
+    like_what: "Disciplinovanost typografie, žádná animace, žádný marketing."
+    weight: moodboard
+
+dislikes:
+  - "Animované intra a hero videa."
+  - "Velké fotografie autorky na hero."
+
+color_preferences:
+  palette_type: monochrome
+  tone: light
+
+typography_preferences:
+  mood: editorial s lehce technickým detail
+  must_avoid: ["Inter", "Roboto"]
+
+imagery_style: minimal-no-imagery
+motion_preference: minimal

@@ -1,0 +1,30 @@
+legal_name: Bistro Naroží s.r.o.
+display_name: Bistro Naroží
+industry: Gastronomie / bistro
+founded_year: 2022
+size: micro
+geography:
+  countries: ["CZ"]
+  regions: ["Praha 7"]
+  remote_global: false
+
+usp: >-
+  Sezónní bistro s důrazem na lokální suroviny od malých dodavatelů
+  z Čech a Moravy. Menu se mění každé 2 týdny podle ročního období.
+
+tone_of_voice:
+  keywords:
+    - přátelský
+    - osobní
+    - food-focused
+    - bez korporátního hávu
+  formality: casual
+  person: first-plural
+
+existing_brand:
+  has_logo: true
+  logo_path: client-assets/logo/bistro-narozi.svg
+  primary_colors: ["#5C2E1F", "#F4E8D8"]
+  rebrand_in_scope: false
+
+competitors: []

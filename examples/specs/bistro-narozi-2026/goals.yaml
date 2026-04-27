@@ -1,0 +1,22 @@
+business_goals:
+  - id: G-001
+    description: "Naplnit kapacitu páteční a sobotní večeře (25 míst, 2 turnusy)."
+    priority: must
+    kpi: "≥ 80 % obsazenost o víkendu měřená přes rezervační systém"
+    personas: [P-001, P-002]
+  - id: G-002
+    description: "Otevřít kanál pro pracovní oběd v týdnu."
+    priority: should
+    personas: [P-001]
+  - id: G-003
+    description: "Anglicky hovořící klientela jako 30 % výnosů."
+    priority: should
+    personas: [P-002]
+
+success_criteria:
+  - "Zákazníci si menu přečtou online před návštěvou."
+  - "Rezervace přicházejí pouze přes web (nikoli telefon) v 70 % případů."
+
+anti_goals:
+  - "Není to e-shop s rozvozy jídla."
+  - "Není to event venue (privátní akce řešíme mimo web)."

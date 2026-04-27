@@ -1,0 +1,136 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://factory-core.rychidesign/schemas/spec/business.schema.json",
+  "title": "Spec / business",
+  "description": "Business context of the client. Drives copy, tone of voice and many design decisions.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["legal_name", "display_name", "industry", "usp", "tone_of_voice"],
+  "properties": {
+    "legal_name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Legal entity name (used in footer, contracts, invoices)."
+    },
+    "display_name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Brand name as shown on the site (often shorter than legal_name)."
+    },
+    "industry": {
+      "type": "string",
+      "minLength": 2,
+      "description": "Primary industry. Free string for V1; may be tightened to enum after first dozen real intakes."
+    },
+    "founded_year": {
+      "type": "integer",
+      "minimum": 1800,
+      "maximum": 2100,
+      "description": "Year the business was founded. Used in About sections and longevity messaging."
+    },
+    "size": {
+      "type": "string",
+      "enum": ["freelancer", "micro", "small", "medium", "large"],
+      "description": "Headcount band. micro=2-9, small=10-49, medium=50-249, large=250+."
+    },
+    "geography": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "countries": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[A-Z]{2}$" },
+          "description": "ISO 3166-1 alpha-2 country codes the business serves."
+        },
+        "regions": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Sub-national regions (e.g. \"Praha\", \"Bavaria\") if the business is regional."
+        },
+        "remote_global": {
+          "type": "boolean",
+          "description": "Set when the business serves clients globally without physical presence."
+        }
+      },
+      "description": "Where the business operates."
+    },
+    "usp": {
+      "type": "string",
+      "minLength": 10,
+      "description": "Unique selling proposition. One or two sentences capturing what makes this business different."
+    },
+    "tone_of_voice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["keywords"],
+      "properties": {
+        "keywords": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 2,
+          "description": "Adjectives describing the desired voice (e.g. \"přátelský\", \"odborný\", \"sebevědomý\")."
+        },
+        "examples_we_like": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Sample phrasings the client likes (existing copy, competitor phrases, …)."
+        },
+        "examples_we_avoid": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Phrasings or registers to avoid (corporate speak, slang, jargon, …)."
+        },
+        "formality": {
+          "type": "string",
+          "enum": ["formal", "neutral", "casual"]
+        },
+        "person": {
+          "type": "string",
+          "enum": ["first-singular", "first-plural", "second-singular", "second-plural", "third"],
+          "description": "Whose voice is speaking. \"first-plural\" (\"my v Acme...\") is common for B2B; \"second-plural\" addresses the reader (\"vyřešíme...\")."
+        }
+      }
+    },
+    "existing_brand": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "has_logo": { "type": "boolean" },
+        "logo_path": { "type": "string", "description": "Relative path to logo file under client-assets/." },
+        "has_brand_book": { "type": "boolean" },
+        "brand_book_path": { "type": "string" },
+        "primary_colors": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+          "description": "Hex colors, with leading #."
+        },
+        "primary_fonts": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "rebrand_in_scope": {
+          "type": "boolean",
+          "description": "If true, the project is allowed to redesign brand basics; if false, existing brand is locked."
+        }
+      },
+      "description": "What the client already has. Empty/false means greenfield."
+    },
+    "competitors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string" },
+          "url": { "type": "string", "format": "uri" },
+          "notes": { "type": "string", "description": "Why they matter — direct competitor, aspirational reference, design we like, etc." },
+          "relation": {
+            "type": "string",
+            "enum": ["direct", "adjacent", "aspirational", "anti-reference"]
+          }
+        }
+      }
+    }
+  }
+}

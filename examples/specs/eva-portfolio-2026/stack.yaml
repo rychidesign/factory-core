@@ -1,0 +1,11 @@
+track: astro-sanity
+track_chosen_by: intake
+track_rationale: >-
+  Malý portfolio, 5 stránek + 4-8 case studies. Sanity free tier
+  bohatě, Cloudflare Pages free.
+
+lock_status: confirmed
+cms: sanity
+auth: none
+deployment: cloudflare-pages
+analytics: plausible

@@ -1,0 +1,125 @@
+pages:
+  - id: PG-001
+    path: /
+    name: Homepage
+    template: homepage
+    cms_managed: true
+    priority: must
+    primary_cta: "Domluvit nezávazný rozsahový odhad"
+    personas: [P-001, P-002]
+
+  - id: PG-002
+    path: /sluzby
+    name: Služby
+    template: listing
+    cms_managed: true
+    priority: must
+    primary_cta: "Vybrat servisní balíček"
+    personas: [P-001]
+
+  - id: PG-003
+    path: /sluzby/[slug]
+    name: Detail služby
+    template: detail
+    cms_managed: true
+    priority: must
+    primary_cta: "Domluvit konzultaci"
+    personas: [P-001]
+
+  - id: PG-004
+    path: /pripadove-studie
+    name: Případové studie
+    template: listing
+    cms_managed: true
+    priority: must
+    personas: [P-001, P-002]
+
+  - id: PG-005
+    path: /pripadove-studie/[slug]
+    name: Detail případové studie
+    template: detail
+    cms_managed: true
+    priority: must
+    personas: [P-001, P-002]
+
+  - id: PG-006
+    path: /o-nas
+    name: O nás
+    template: static
+    cms_managed: true
+    priority: must
+    personas: [P-001]
+
+  - id: PG-007
+    path: /kontakt
+    name: Kontakt
+    template: form
+    cms_managed: true
+    priority: must
+    primary_cta: "Odeslat poptávku"
+    personas: [P-001]
+
+  - id: PG-008
+    path: /ochrana-osobnich-udaju
+    name: Ochrana osobních údajů
+    template: legal
+    cms_managed: false
+    priority: must
+    personas: []
+
+  - id: PG-009
+    path: /kariera
+    name: Kariéra
+    template: static
+    cms_managed: true
+    priority: could
+
+  - id: PG-010
+    path: /404
+    name: "Stránka nenalezena"
+    template: "404"
+    cms_managed: false
+    priority: must
+
+features:
+  - id: F-001
+    name: "Strukturovaný kontaktní formulář s typem linky"
+    description: "Formulář zachytí typ poptávané linky, počet kusů/rok, časový horizont."
+    complexity: simple
+  - id: F-002
+    name: "Filtrování case studies podle odvětví a velikosti"
+    description: "Listing case studies má filtry: odvětví, počet zaměstnanců klienta, typ linky."
+    complexity: medium
+    depends_on_features: [F-001]
+  - id: F-003
+    name: "Sticky CTA na detail službě"
+    complexity: trivial
+
+integrations:
+  - id: analytics-1
+    type: analytics
+    provider: Plausible
+    notes: "Self-hosted instance klienta na metrics.acme-precision.cz."
+  - id: forms-1
+    type: forms
+    provider: "Sanity + email"
+    notes: "Formulář ukládá do Sanity datasetu a zároveň posílá notifikaci."
+
+forms:
+  - id: FRM-001
+    purpose: contact
+    fields:
+      - jmeno
+      - firma
+      - email
+      - telefon
+      - typ_linky
+      - pocet_kusu_rocne
+      - casovy_horizont
+      - zprava
+    destination: cms
+    spam_protection: turnstile
+
+auth_required: false
+multilang: false
+estimated_pages: 16

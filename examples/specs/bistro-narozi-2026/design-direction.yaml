@@ -1,0 +1,29 @@
+aesthetic_keywords:
+  - warm
+  - food-led
+  - sezónní
+  - bez-zbytečností
+
+mood: >-
+  Bistro, kde si sednete a víte, že to bude dobré jídlo. Web je
+  pro přípravu před návštěvou, ne marketing.
+
+references:
+  - url: https://www.lacavana.cz
+    description: Pražské bistro
+    like_what: "Velké fotky jídla, klidná typografie."
+    weight: primary
+
+dislikes:
+  - "Glossy stock food fotky."
+  - "Animace plamenů a páry."
+
+color_preferences:
+  must_include: ["#5C2E1F", "#F4E8D8"]
+  tone: light
+
+typography_preferences:
+  mood: warm serif s drobným sans pro UI
+
+imagery_style: photography
+motion_preference: subtle

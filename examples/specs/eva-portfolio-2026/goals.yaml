@@ -1,0 +1,18 @@
+business_goals:
+  - id: G-001
+    description: "Získat 1-2 dlouhodobé klienty (3-6 měsíců) ročně přes web."
+    priority: must
+    kpi: "≥ 1 nový retainer-style klient v prvních 4 měsících po launchi"
+    personas: [P-001]
+  - id: G-002
+    description: "Pozicovat se jako designer rozumějící produktu, ne dekoratér."
+    priority: must
+    personas: [P-001]
+
+success_criteria:
+  - "Klienti zmiňují case studies jako důvod, proč napsali."
+  - "Web vystačí 2-3 roky bez kompletního redesignu."
+
+anti_goals:
+  - "Není to job board — neřeším full-time pozice."
+  - "Nepřijímám klienty na pure UI bez discovery fáze."

@@ -1,0 +1,21 @@
+budget:
+  max_tokens_total: 2000000
+  max_dollar_cost: 5.00
+  max_iterations: 150
+  max_duration_hours: 24
+  max_consecutive_failures: 5
+
+accessibility:
+  min_wcag_level: AA
+
+performance_targets:
+  min_lighthouse_mobile: 95
+  min_lighthouse_desktop: 98
+
+compliance: ["GDPR", "WCAG-AA"]
+data_residency: EU
+
+intellectual_property:
+  code_ownership: client
+  design_ownership: client
+  ai_disclosure_to_client: true

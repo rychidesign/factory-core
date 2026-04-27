@@ -1,0 +1,45 @@
+aesthetic_keywords:
+  - industrial
+  - precise
+  - confident
+  - data-led
+  - structured
+  - quietly-technical
+
+mood: >-
+  Sebevědomá technická firma, která ví, co dělá, a ukazuje to čísly,
+  ne přívlastky. Žádný hype, žádné stock fotky tabletů a kávy.
+
+references:
+  - url: https://www.kuka.com
+    description: Globální leader v robotice
+    like_what: "Strukturovaný case-studies layout s číselnými KPI v leadu."
+    weight: primary
+  - url: https://linear.app
+    description: SaaS, ale s relevantní typografií
+    like_what: "Disciplinovaná typografie, dark/light mode, mikrointerakce v technickém duchu."
+    weight: supporting
+  - url: https://hetznercloud.com
+    description: Hosting, technická firma
+    like_what: "Dobré zpracování technických detailů a tabulek."
+    weight: moodboard
+
+dislikes:
+  - "Stock fotky lidí v oblecích u tabletů."
+  - "Nadstandardní 'partnerství na cestě k transformaci'."
+  - "Sliders na homepage."
+  - "Comic Sans, samozřejmě."
+
+color_preferences:
+  palette_type: complementary
+  must_include: ["#0B2545", "#F1B500"]
+  must_avoid: ["#FF0000"]
+  tone: light
+
+typography_preferences:
+  mood: technický s editorial nádechem
+  must_include: ["IBM Plex Sans"]
+  must_avoid: ["Inter", "Roboto", "Montserrat"]
+
+imagery_style: photography
+motion_preference: subtle

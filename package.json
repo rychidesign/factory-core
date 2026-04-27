@@ -1,0 +1,24 @@
+{
+  "name": "factory-core",
+  "version": "0.1.0",
+  "description": "Shared core of Rychi Design Factory: schemas, agent runtime config, skills, archetypes, templates and tooling.",
+  "license": "WTFPL",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20.10.0",
+    "pnpm": ">=8.0.0"
+  },
+  "bin": {
+    "spec-validate": "./tools/spec-validate"
+  },
+  "scripts": {
+    "spec:validate": "node tools/spec-validate",
+    "spec:validate:examples": "for d in examples/specs/*/; do echo \"--- $d ---\"; node tools/spec-validate \"$d\" || exit 1; done"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "yaml": "^2.6.1"
+  }
+}

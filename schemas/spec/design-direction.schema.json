@@ -1,0 +1,106 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://factory-core.rychidesign/schemas/spec/design-direction.schema.json",
+  "title": "Spec / design-direction",
+  "description": "Aesthetic constraints and references that feed the design-director agent in Phase 2a. The agent uses this to generate 3 directions; the operator picks one.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["aesthetic_keywords", "mood"],
+  "properties": {
+    "aesthetic_keywords": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 3,
+      "maxItems": 12,
+      "description": "Adjectives the client used or that capture the desired feel (e.g. \"industrial\", \"precise\", \"warm\", \"editorial\"). Min 3 to force articulation, max 12 to prevent dilution."
+    },
+    "mood": {
+      "type": "string",
+      "minLength": 5,
+      "description": "One-sentence emotional summary of the desired site (e.g. \"sebevědomá technická firma, která ví, co dělá\")."
+    },
+    "references": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["url"],
+        "properties": {
+          "url": { "type": "string", "format": "uri" },
+          "description": { "type": "string", "description": "Short note on what this reference is." },
+          "like_what": { "type": "string", "description": "What specifically the client likes about it (typography, layout, colour, motion, …)." },
+          "weight": {
+            "type": "string",
+            "enum": ["primary", "supporting", "moodboard"],
+            "default": "supporting",
+            "description": "How influential this reference should be."
+          }
+        }
+      }
+    },
+    "dislikes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Things the client explicitly does not want (\"corporate stock photos\", \"playful illustrations\", \"sliders\")."
+    },
+    "color_preferences": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "palette_type": {
+          "type": "string",
+          "enum": ["monochrome", "analogous", "complementary", "triadic", "open"],
+          "default": "open",
+          "description": "Constraint on palette shape; \"open\" means no constraint."
+        },
+        "must_include": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+          "description": "Hex colours that must appear (typically existing brand colours)."
+        },
+        "must_avoid": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" }
+        },
+        "tone": {
+          "type": "string",
+          "enum": ["light", "dark", "either"]
+        }
+      }
+    },
+    "typography_preferences": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mood": { "type": "string", "description": "How the type should feel (\"editorial\", \"technical\", \"warm\", \"neutral\")." },
+        "must_include": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Specific font families that must be used (e.g. existing brand font)."
+        },
+        "must_avoid": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Common defaults to avoid (\"Inter\", \"Roboto\", \"Montserrat\", \"Comic Sans\")."
+        }
+      }
+    },
+    "imagery_style": {
+      "type": "string",
+      "enum": [
+        "photography",
+        "illustration",
+        "abstract",
+        "mixed",
+        "minimal-no-imagery"
+      ],
+      "description": "Dominant imagery family. \"minimal-no-imagery\" is an explicit choice, not absence of decision."
+    },
+    "motion_preference": {
+      "type": "string",
+      "enum": ["none", "minimal", "subtle", "expressive"],
+      "default": "subtle",
+      "description": "How much motion the operator wants. The animation-polish-agent in Phase 7 honours this."
+    }
+  }
+}

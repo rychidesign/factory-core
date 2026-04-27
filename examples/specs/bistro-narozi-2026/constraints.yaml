@@ -1,0 +1,22 @@
+budget:
+  max_tokens_total: 3000000
+  max_dollar_cost: 7.00
+  max_iterations: 200
+  max_duration_hours: 36
+  max_consecutive_failures: 5
+
+deadlines:
+  production_launch: "2026-06-01"
+
+accessibility:
+  min_wcag_level: AA
+
+performance_targets:
+  min_lighthouse_mobile: 90
+  min_lighthouse_desktop: 95
+
+compliance: ["GDPR", "WCAG-AA"]
+data_residency: EU
+
+intellectual_property:
+  ai_disclosure_to_client: true

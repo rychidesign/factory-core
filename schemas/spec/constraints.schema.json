@@ -1,0 +1,132 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://factory-core.rychidesign/schemas/spec/constraints.schema.json",
+  "title": "Spec / constraints",
+  "description": "Hard limits the factory must respect: budget caps, deadlines, accessibility/performance targets, compliance, do-not-use lists. See ARCHITECTURE.md §9.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["budget"],
+  "properties": {
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "max_tokens_total",
+        "max_dollar_cost",
+        "max_iterations",
+        "max_duration_hours",
+        "max_consecutive_failures"
+      ],
+      "properties": {
+        "max_tokens_total": {
+          "type": "integer",
+          "minimum": 100000,
+          "maximum": 100000000,
+          "description": "Hard cap on total tokens the factory may spend on this project. Default per ARCHITECTURE §9.1: 5000000."
+        },
+        "max_dollar_cost": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 1000,
+          "description": "Hard cap on USD cost. Auto-stop at 100%, Level 3 escalation at 95%, Level 2 at 75%."
+        },
+        "max_iterations": {
+          "type": "integer",
+          "minimum": 10,
+          "maximum": 5000,
+          "description": "Hard cap on orchestrator iterations. Prevents infinite loops."
+        },
+        "max_duration_hours": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 720,
+          "description": "Wall-clock cap. 48h is the V1 default."
+        },
+        "max_consecutive_failures": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50,
+          "description": "Number of consecutive agent failures after which the factory auto-stops. Healing attempts count as one chain."
+        }
+      }
+    },
+    "deadlines": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "intake_complete": { "type": "string", "format": "date" },
+        "design_approval": { "type": "string", "format": "date" },
+        "staging_review": { "type": "string", "format": "date" },
+        "production_launch": { "type": "string", "format": "date" }
+      },
+      "description": "Optional client-facing deadlines. The factory does not enforce them, but the dashboard surfaces them."
+    },
+    "accessibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "min_wcag_level": {
+          "type": "string",
+          "enum": ["A", "AA", "AAA"],
+          "default": "AA",
+          "description": "Minimum WCAG level the accessibility-auditor enforces."
+        },
+        "additional_requirements": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Free-form a11y requirements beyond WCAG (e.g. \"funguje s NVDA na Edge\", \"plně použitelné na klávesnici\")."
+        }
+      }
+    },
+    "performance_targets": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "min_lighthouse_mobile": { "type": "integer", "minimum": 0, "maximum": 100, "default": 90 },
+        "min_lighthouse_desktop": { "type": "integer", "minimum": 0, "maximum": 100, "default": 95 },
+        "max_largest_contentful_paint_ms": { "type": "integer", "minimum": 100, "default": 2500 },
+        "max_total_blocking_time_ms": { "type": "integer", "minimum": 0, "default": 200 },
+        "max_cumulative_layout_shift": { "type": "number", "minimum": 0, "default": 0.1 }
+      }
+    },
+    "compliance": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["GDPR", "CCPA", "WCAG-AA", "WCAG-AAA", "EAA-2025", "PCI-DSS", "HIPAA"]
+      },
+      "description": "Compliance regimes the site must satisfy. GDPR is the default for CZ/EU clients."
+    },
+    "data_residency": {
+      "type": "string",
+      "enum": ["any", "EU", "CZ", "on-premise"],
+      "default": "any",
+      "description": "Where data may live. \"on-premise\" forces the architect agent toward Payload over Sanity."
+    },
+    "do_not_use": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Vendors, libraries or patterns the project must not use. Examples: \"Google Analytics\" (privacy), \"Comic Sans\" (taste), \"react-slick\" (a11y)."
+    },
+    "intellectual_property": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "code_ownership": {
+          "type": "string",
+          "enum": ["client", "agency", "shared"],
+          "default": "client"
+        },
+        "design_ownership": {
+          "type": "string",
+          "enum": ["client", "agency", "shared"],
+          "default": "client"
+        },
+        "ai_disclosure_to_client": {
+          "type": "boolean",
+          "description": "Whether the client has been told the build is AI-assisted. PRD US-IN-007 / Wave 6 step 6.1 expects true."
+        }
+      }
+    }
+  }
+}

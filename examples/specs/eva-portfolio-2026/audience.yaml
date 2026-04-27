@@ -1,0 +1,16 @@
+personas:
+  - id: P-001
+    name: "Tomáš, hiring manager v product-led startupu"
+    role: Head of Design / VP Product v 20-100 osobní firmě
+    goals:
+      - "Najít externího designera pro discovery a redesign jednoho produktu."
+      - "Posoudit, jestli rozumí produktu, ne jen kreslí UI."
+    pain_points:
+      - "Většina freelance portfolií ukazuje screeny bez kontextu."
+      - "Designeři, kteří se nezajímají o produkt, jen o vizuál."
+    tech_savvy: high
+    decision_role: decision-maker
+
+primary_persona_id: P-001
+
+languages: ["cs-CZ"]

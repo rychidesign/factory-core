@@ -1,0 +1,39 @@
+business_goals:
+  - id: G-001
+    description: Získat 20+ kvalifikovaných poptávek měsíčně z B2B sektoru průmyslové automatizace.
+    priority: must
+    kpi: "≥ 20 form submits / měsíc s technicky kvalifikovaným polem (typ linky, počet kusů)"
+    personas: [P-001, P-002]
+
+  - id: G-002
+    description: Posílit důvěryhodnost značky publikací 6 reálných případových studií s čísly.
+    priority: must
+    kpi: "6 case studies publikovaných do 4 měsíců po launchi"
+    personas: [P-001]
+
+  - id: G-003
+    description: Snížit prefiltrovací zátěž obchodu pomocí jasné stránky se servisními balíčky.
+    priority: should
+    kpi: "30 % poptávek odkazuje na konkrétní balíček před prvním hovorem"
+    personas: [P-001, P-002]
+
+  - id: G-004
+    description: Otevřít kanál pro nábor inženýrů přes karierovou sekci.
+    priority: could
+    personas: []
+
+  - id: G-005
+    description: Online konfigurátor robotické linky s kalkulací.
+    priority: wont
+    kpi: ""
+    personas: [P-001]
+
+success_criteria:
+  - "Po 3 měsících od launche přichází ≥ 60 % nových poptávek z webu (před launchem 20 %)."
+  - "Klienti zmiňují case studies jako důvod, proč si vybrali Acme."
+  - "Lighthouse mobile ≥ 90, žádná stránka pomalejší než 2 s LCP."
+
+anti_goals:
+  - "Není to e-shop náhradních dílů — prodej dílů zůstává v ERP."
+  - "Není to nábor — kariéra je sekundární kanál, ne hlavní."
+  - "Web nenahrazuje obchodního zástupce, jen ho lépe připravuje."

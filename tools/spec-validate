@@ -1,0 +1,285 @@
+#!/usr/bin/env node
+// Validate a Rychi Design Factory spec/ directory.
+//
+// Usage:
+//   tools/spec-validate <spec-dir>
+//   pnpm spec:validate <spec-dir>
+//
+// Exit codes:
+//   0  spec valid (warnings ok)
+//   1  spec invalid (schema errors or cross-file integrity failures)
+//   2  invocation error (bad args, missing dir, missing schemas)
+
+import { readFileSync, existsSync, statSync } from "node:fs";
+import { join, dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { parse as parseYaml } from "yaml";
+import Ajv from "ajv";
+import addFormats from "ajv-formats";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const FACTORY_CORE = process.env.FACTORY_CORE
+  ? resolve(process.env.FACTORY_CORE)
+  : resolve(__dirname, "..");
+const SCHEMA_DIR = join(FACTORY_CORE, "schemas", "spec");
+
+const SPEC_FILES = [
+  { file: "meta.yaml",             schema: "meta.schema.json",             key: "meta",            required: true  },
+  { file: "business.yaml",         schema: "business.schema.json",         key: "business",        required: true  },
+  { file: "audience.yaml",         schema: "audience.schema.json",         key: "audience",        required: true  },
+  { file: "goals.yaml",            schema: "goals.schema.json",            key: "goals",           required: true  },
+  { file: "scope.yaml",            schema: "scope.schema.json",            key: "scope",           required: true  },
+  { file: "stack.yaml",            schema: "stack.schema.json",            key: "stack",           required: true  },
+  { file: "design-direction.yaml", schema: "design-direction.schema.json", key: "designDirection", required: true  },
+  { file: "constraints.yaml",      schema: "constraints.schema.json",      key: "constraints",     required: true  },
+  { file: "brief.md",              schema: null,                            key: "brief",           required: true  },
+];
+
+const TRACK_CMS = {
+  "astro-sanity":  "sanity",
+  "astro-payload": "payload",
+  "nextjs-sanity": "sanity",
+  "webflow":       "webflow",
+};
+
+function colour(s, code) {
+  if (!process.stdout.isTTY) return s;
+  return `\x1b[${code}m${s}\x1b[0m`;
+}
+const red    = (s) => colour(s, "31");
+const green  = (s) => colour(s, "32");
+const yellow = (s) => colour(s, "33");
+const dim    = (s) => colour(s, "2");
+
+function die(msg, code = 2) {
+  process.stderr.write(red(`error: ${msg}\n`));
+  process.exit(code);
+}
+
+function readYaml(path) {
+  const raw = readFileSync(path, "utf8");
+  try {
+    return parseYaml(raw);
+  } catch (e) {
+    throw new Error(`YAML parse failed: ${e.message}`);
+  }
+}
+
+function loadSchema(name) {
+  const path = join(SCHEMA_DIR, name);
+  if (!existsSync(path)) {
+    die(`schema not found: ${path}`);
+  }
+  return JSON.parse(readFileSync(path, "utf8"));
+}
+
+function formatAjvError(err) {
+  const path = err.instancePath || "(root)";
+  const params = Object.keys(err.params || {}).length
+    ? " " + dim(JSON.stringify(err.params))
+    : "";
+  return `    ${path} ${err.message}${params}`;
+}
+
+// Cross-file integrity checks. Returns array of error strings (empty = ok).
+function integrityCheck(spec) {
+  const errors = [];
+  const { meta, business, audience, goals, scope, stack, designDirection, constraints } = spec;
+
+  // 1. primary_persona_id must reference an existing persona
+  if (audience?.personas && audience.primary_persona_id) {
+    const ids = new Set(audience.personas.map((p) => p.id));
+    if (!ids.has(audience.primary_persona_id)) {
+      errors.push(
+        `audience.primary_persona_id "${audience.primary_persona_id}" does not match any persona id in personas[] (have: ${[...ids].join(", ") || "none"})`,
+      );
+    }
+  }
+
+  // 2. goals[].personas[] must reference existing persona ids
+  if (goals?.business_goals && audience?.personas) {
+    const personaIds = new Set(audience.personas.map((p) => p.id));
+    for (const g of goals.business_goals) {
+      for (const pid of g.personas || []) {
+        if (!personaIds.has(pid)) {
+          errors.push(`goals "${g.id}" references unknown persona "${pid}"`);
+        }
+      }
+    }
+  }
+
+  // 3. scope.pages[].personas[] must reference existing persona ids
+  if (scope?.pages && audience?.personas) {
+    const personaIds = new Set(audience.personas.map((p) => p.id));
+    for (const pg of scope.pages) {
+      for (const pid of pg.personas || []) {
+        if (!personaIds.has(pid)) {
+          errors.push(`scope page "${pg.id}" references unknown persona "${pid}"`);
+        }
+      }
+    }
+  }
+
+  // 4. scope.features.depends_on_features must be valid feature ids
+  if (scope?.features) {
+    const featureIds = new Set(scope.features.map((f) => f.id));
+    for (const f of scope.features) {
+      for (const dep of f.depends_on_features || []) {
+        if (!featureIds.has(dep)) {
+          errors.push(`scope feature "${f.id}" depends on unknown feature "${dep}"`);
+        }
+      }
+    }
+  }
+
+  // 5. stack.track ↔ stack.cms consistency
+  if (stack?.track && stack.cms) {
+    const expected = TRACK_CMS[stack.track];
+    if (expected && stack.cms !== expected) {
+      errors.push(
+        `stack.cms "${stack.cms}" is inconsistent with stack.track "${stack.track}" (expected cms="${expected}")`,
+      );
+    }
+  }
+
+  // 6. scope.auth_required → stack.auth must not be "none"
+  if (scope?.auth_required === true) {
+    if (!stack?.auth || stack.auth === "none") {
+      errors.push(
+        `scope.auth_required is true but stack.auth is "${stack?.auth ?? "missing"}"; pick a non-"none" auth provider`,
+      );
+    }
+  }
+
+  // 7. scope.multilang vs. audience.languages
+  if (scope?.multilang === true) {
+    const langs = audience?.languages || [];
+    if (langs.length < 2) {
+      errors.push(
+        `scope.multilang is true but audience.languages has ${langs.length} entr${langs.length === 1 ? "y" : "ies"} (need at least 2)`,
+      );
+    }
+  } else if (scope?.multilang === false && (audience?.languages || []).length > 1) {
+    errors.push(
+      `audience.languages lists ${audience.languages.length} languages but scope.multilang is false`,
+    );
+  }
+
+  // 8. meta.language must be in audience.languages (if both present)
+  if (meta?.language && audience?.languages?.length) {
+    if (!audience.languages.includes(meta.language)) {
+      errors.push(
+        `meta.language "${meta.language}" is not in audience.languages [${audience.languages.join(", ")}]`,
+      );
+    }
+  }
+
+  // 9. webflow stack track ↔ deployment alignment
+  if (stack?.track === "webflow" && stack.deployment !== "webflow-hosting") {
+    errors.push(`stack.track "webflow" requires stack.deployment "webflow-hosting"`);
+  }
+
+  // 10. data_residency on-premise → architect should pick payload (warn-style note, treated as error)
+  if (constraints?.data_residency === "on-premise" && stack?.cms === "sanity") {
+    errors.push(
+      `constraints.data_residency is "on-premise" but stack.cms is "sanity" (hosted); pick payload track for on-premise data`,
+    );
+  }
+
+  return errors;
+}
+
+function main() {
+  const arg = process.argv[2];
+  if (!arg || arg === "-h" || arg === "--help") {
+    process.stdout.write(
+      "Usage: spec-validate <spec-dir>\n" +
+      "Validates the 8 spec YAML files plus brief.md against schemas in\n" +
+      "factory-core/schemas/spec/ and runs cross-file integrity checks.\n",
+    );
+    process.exit(arg ? 0 : 2);
+  }
+
+  const specDir = resolve(arg);
+  if (!existsSync(specDir) || !statSync(specDir).isDirectory()) {
+    die(`spec directory not found: ${specDir}`);
+  }
+
+  const ajv = new Ajv({ allErrors: true, strict: false, allowUnionTypes: true });
+  addFormats(ajv);
+
+  const loaded = {};
+  let schemaErrors = 0;
+  let missing = 0;
+  const lines = [];
+
+  for (const entry of SPEC_FILES) {
+    const path = join(specDir, entry.file);
+    if (!existsSync(path)) {
+      lines.push(`${red("✗")} ${entry.file} ${dim("missing")}`);
+      missing++;
+      continue;
+    }
+
+    if (!entry.schema) {
+      // brief.md — presence check only
+      lines.push(`${green("✓")} ${entry.file} ${dim("(no schema)")}`);
+      continue;
+    }
+
+    let data;
+    try {
+      data = readYaml(path);
+    } catch (e) {
+      lines.push(`${red("✗")} ${entry.file}: ${e.message}`);
+      schemaErrors++;
+      continue;
+    }
+
+    const schema = loadSchema(entry.schema);
+    const validate = ajv.compile(schema);
+
+    if (validate(data)) {
+      lines.push(`${green("✓")} ${entry.file}`);
+      loaded[entry.key] = data;
+    } else {
+      lines.push(`${red("✗")} ${entry.file}`);
+      for (const err of validate.errors) {
+        lines.push(formatAjvError(err));
+      }
+      schemaErrors++;
+      // Still load it for later integrity checks where possible.
+      loaded[entry.key] = data;
+    }
+  }
+
+  const integrityErrors = integrityCheck(loaded);
+
+  // Output.
+  process.stdout.write(lines.join("\n") + "\n");
+
+  if (integrityErrors.length) {
+    process.stdout.write("\n" + red("cross-file integrity:") + "\n");
+    for (const e of integrityErrors) {
+      process.stdout.write(`  ${red("✗")} ${e}\n`);
+    }
+  }
+
+  process.stdout.write(dim("---") + "\n");
+
+  const totalErrors = schemaErrors + missing + integrityErrors.length;
+  if (totalErrors === 0) {
+    process.stdout.write(green(`✓ Spec valid`) + ` (${SPEC_FILES.length} files checked)\n`);
+    process.exit(0);
+  } else {
+    process.stdout.write(
+      red(`✗ Spec invalid:`) +
+        ` ${schemaErrors} schema error${schemaErrors === 1 ? "" : "s"}, ` +
+        `${missing} missing, ` +
+        `${integrityErrors.length} integrity issue${integrityErrors.length === 1 ? "" : "s"}\n`,
+    );
+    process.exit(1);
+  }
+}
+
+main();

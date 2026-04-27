@@ -1,0 +1,32 @@
+personas:
+  - id: P-001
+    name: "Klára, food-focused Pražačka"
+    role: 30-45 let, žije v Praze, věnuje se gastronomii jako koníček
+    goals:
+      - "Najít zajímavé bistro pro páteční večeři."
+      - "Vědět dopředu, co je v menu, jestli stojí za návštěvu."
+    pain_points:
+      - "Stránky bister jsou často zastaralé nebo nemají menu online."
+      - "Rezervace přes telefon je nepohodlná."
+    tech_savvy: high
+    decision_role: decision-maker
+    channels: ["Instagram", "Mapy.cz", "doporučení"]
+
+  - id: P-002
+    name: "Mark, expat ve Vinohradech"
+    role: 25-40 let, anglicky mluvící expat
+    goals:
+      - "Najít autentické české bistro s menu v angličtině."
+      - "Rezervovat online bez telefonování."
+    pain_points:
+      - "Většina českých bister má jen české menu."
+    tech_savvy: high
+    decision_role: decision-maker
+    channels: ["Google Maps", "expat fora"]
+
+primary_persona_id: P-001
+
+secondary_audiences:
+  - "Pracovní oběd 'business lunch' návštěvníků."
+
+languages: ["cs-CZ", "en"]
