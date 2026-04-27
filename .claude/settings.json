@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git branch *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git remote *)",
+      "Bash(git push *)",
+      "Bash(sed -i 's/^# \\\\\\([0-9]\\\\\\)/## \\\\1/g; s/^## \\\\\\([0-9][0-9]*\\\\.[0-9]\\\\\\)/### \\\\1/g; s/^### US-/#### US-/g' docs/PRD.md)",
+      "Bash(sed -i '/^# 7\\\\./,$ s/^### Changelog/#### Changelog/' docs/PRD.md)",
+      "Bash(awk ' *)",
+      "Bash(mv /tmp/ROADMAP.md.new /home/rychi/claude/rychidesign-factory/docs/ROADMAP.md)",
+      "Bash(grep -c '^```' /home/rychi/claude/rychidesign-factory/docs/ARCHITECTURE.md)",
+      "Bash(\" /home/rychi/claude/rychidesign-factory/docs/ARCHITECTURE.md | head -30)",
+      "Bash(grep -n \"^```\" /home/rychi/claude/rychidesign-factory/docs/ARCHITECTURE.md | head -30)",
+      "Bash(grep -nE '^[`]{3}' /home/rychi/claude/rychidesign-factory/docs/ARCHITECTURE.md)",
+      "Bash(git -C /home/rychi/claude/rychidesign-factory status --short)",
+      "Bash(git -C /home/rychi/claude/rychidesign-factory branch -vv)",
+      "Bash(git -C /home/rychi/claude/rychidesign-factory remote -v)",
+      "Bash(git ls-remote *)",
+      "Bash(command -v tree)"
+    ]
+  }
+}
