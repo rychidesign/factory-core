@@ -1,0 +1,151 @@
+#!/usr/bin/env node
+// Markdown plan.md structural validator.
+//
+// Checks (intentionally minimal — full parsing belongs in the orchestrator):
+//   1. H1 starts with "Implementation Plan: ".
+//   2. <!-- factory-meta: {...} --> block exists, parses as JSON, validates
+//      against schemas/plan-meta.schema.json.
+//   3. All 9 phase headers (Phase 0..Phase 8) present, in order, with a known
+//      status icon and matching status text per plan-format.md §3.3.
+//   4. Phase 2 (Design) has the 3 expected sub-phase headers.
+//
+// Usage: validate-plan <plan.md>
+//
+// Exit codes: 0 valid / 1 invalid / 2 invocation error.
+
+import { readFileSync, existsSync } from "node:fs";
+import { resolve, join } from "node:path";
+import { FACTORY_CORE, buildAjv, compileFor, formatErr, red, green, die } from "./lib.mjs";
+
+const PHASES = [
+  { num: 0, title: "Bootstrap" },
+  { num: 1, title: "Architecture" },
+  { num: 2, title: "Design" },
+  { num: 3, title: "Foundation" },
+  { num: 4, title: "Content" },
+  { num: 5, title: "Build" },
+  { num: 6, title: "QA" },
+  { num: 7, title: "Polish" },
+  { num: 8, title: "Deploy" },
+];
+
+const ICON_TO_STATUS = {
+  "⏸":  { status: "pending",     text: "Pending" },
+  "🚧": { status: "in_progress", text: "In Progress" },
+  "⛔": { status: "blocked",     text: "Blocked" },
+  "✅": { status: "complete",    text: "Complete" },
+  "❌": { status: "failed",      text: "Failed" },
+  "⏭️": { status: "skipped",     text: "Skipped" },
+};
+
+const DESIGN_SUBPHASES = ["2a: Direction", "2b: Figma Generation", "2c: Lock & Extract"];
+
+function main() {
+  const [, , planArg] = process.argv;
+  if (!planArg || planArg === "--help" || planArg === "-h") {
+    process.stdout.write(
+      "Usage: validate-plan <plan.md>\n" +
+      "Structural check for plan.md (H1, factory-meta block, phase headers).\n",
+    );
+    process.exit(planArg ? 0 : 2);
+  }
+
+  const planPath = resolve(planArg);
+  if (!existsSync(planPath)) die(`plan not found: ${planPath}`);
+
+  const text = readFileSync(planPath, "utf8");
+  const errors = [];
+
+  // 1. H1
+  if (!/^# Implementation Plan: .+$/m.test(text)) {
+    errors.push(`missing H1 of the form "# Implementation Plan: <name>"`);
+  }
+
+  // 2. Metadata block
+  const metaMatch = text.match(/<!--\s*factory-meta:\s*([\s\S]+?)\s*-->/);
+  if (!metaMatch) {
+    errors.push(`missing <!-- factory-meta: { ... } --> block`);
+  } else {
+    let meta;
+    try {
+      meta = JSON.parse(metaMatch[1]);
+    } catch (e) {
+      errors.push(`factory-meta JSON parse failed: ${e.message}`);
+    }
+    if (meta) {
+      const ajv = buildAjv();
+      const schemaPath = join(FACTORY_CORE, "schemas", "plan-meta.schema.json");
+      if (!existsSync(schemaPath)) {
+        errors.push(`plan-meta.schema.json not found at ${schemaPath}`);
+      } else {
+        const schema = JSON.parse(readFileSync(schemaPath, "utf8"));
+        const validate = compileFor(ajv, schema);
+        if (!validate(meta)) {
+          errors.push(`factory-meta block fails plan-meta.schema.json:`);
+          for (const err of validate.errors) errors.push("  " + formatErr(err).trim());
+        }
+      }
+    }
+  }
+
+  // 3. Phase headers
+  // Match "## Phase N: Title <icon> <Status text>"
+  // Be permissive about trailing whitespace but strict about icon presence.
+  const phaseHeaderRe = /^## Phase (\d+): ([A-Za-z][A-Za-z ]*?) (⏸|🚧|⛔|✅|❌|⏭️) (.+?)$/gm;
+  const found = [...text.matchAll(phaseHeaderRe)].map((m) => ({
+    num: parseInt(m[1], 10),
+    title: m[2].trim(),
+    icon: m[3],
+    statusText: m[4].trim(),
+    index: m.index,
+  }));
+
+  if (found.length !== PHASES.length) {
+    errors.push(`expected ${PHASES.length} phase headers, found ${found.length}`);
+  }
+
+  for (let i = 0; i < Math.min(found.length, PHASES.length); i++) {
+    const f = found[i];
+    const expect = PHASES[i];
+    if (f.num !== expect.num) {
+      errors.push(`phase header #${i + 1} has number ${f.num}, expected ${expect.num}`);
+    }
+    if (f.title !== expect.title) {
+      errors.push(`phase header #${i + 1} ("Phase ${f.num}") title is "${f.title}", expected "${expect.title}"`);
+    }
+    const expected = ICON_TO_STATUS[f.icon];
+    if (!expected) {
+      errors.push(`phase "${expect.title}" uses unknown status icon`);
+    } else if (expected.text !== f.statusText) {
+      errors.push(`phase "${expect.title}" icon ${f.icon} expects status text "${expected.text}", got "${f.statusText}"`);
+    }
+  }
+
+  // Order check (already enforced via match index ordering).
+  for (let i = 1; i < found.length; i++) {
+    if (found[i].index < found[i - 1].index) {
+      errors.push(`phase headers are out of order at "${found[i].title}"`);
+    }
+  }
+
+  // 4. Design sub-phase headers
+  if (found.find((p) => p.num === 2)) {
+    for (const sub of DESIGN_SUBPHASES) {
+      const re = new RegExp(`^### ${sub.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*$`, "m");
+      if (!re.test(text)) {
+        errors.push(`Phase 2 (Design) missing sub-phase header "### ${sub}"`);
+      }
+    }
+  }
+
+  if (errors.length === 0) {
+    process.stdout.write(`${green("✓")} ${planArg}\n`);
+    process.exit(0);
+  } else {
+    process.stdout.write(`${red("✗")} ${planArg}\n`);
+    for (const e of errors) process.stdout.write(`    ${e}\n`);
+    process.exit(1);
+  }
+}
+
+main();

@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0",
+  "signal_type": "auditor-result",
+  "status": "failed",
+  "findings": [
+    {
+      "severity": "critical",
+      "category": "a11y/contrast",
+      "message": "Body text on accent background fails WCAG AA contrast (3.2:1, requires ≥4.5:1).",
+      "location": "components/HeroAccent.astro:23",
+      "suggested_fix": "Darken --accent-fg to at least #2A1A06 or move text off the accent fill.",
+      "rule_id": "axe/color-contrast"
+    },
+    {
+      "severity": "major",
+      "category": "perf/lcp",
+      "message": "LCP element is 4.1 s on 4G mobile profile (target ≤ 2.5 s).",
+      "location": "/",
+      "suggested_fix": "Inline hero image as priority resource and serve avif/webp variants.",
+      "rule_id": "lighthouse/largest-contentful-paint"
+    },
+    {
+      "severity": "minor",
+      "category": "perf/cls",
+      "message": "Cumulative layout shift 0.13 (target ≤ 0.1).",
+      "location": "/o-nas",
+      "rule_id": "lighthouse/cumulative-layout-shift"
+    }
+  ],
+  "metadata": {
+    "agent": "performance-auditor",
+    "duration_seconds": 47.8,
+    "tokens_used": 6400,
+    "model": "opencode/qwen3.5-plus",
+    "audited_url": "https://acme-precision-staging.pages.dev/"
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://factory-core.rychidesign/schemas/agent-signals/auditor-result.schema.json",
+  "title": "Auditor result signal",
+  "description": "Returned by every auditor agent (accessibility, performance, route, content, ui-consistency, code-reviewer, e2e-test-runner, design-auditor) at the end of an audit. Strict JSON, no free text — see ADR-0007.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "signal_type", "status", "findings", "metadata"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+(\\.\\d+)?$"
+    },
+    "signal_type": {
+      "const": "auditor-result",
+      "description": "Discriminator. Validators dispatch on this when reading from a generic stream."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["passed", "failed", "warning"],
+      "description": "passed = no critical/major findings; warning = only minor findings; failed = at least one critical or major finding."
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["severity", "category", "message"],
+        "properties": {
+          "severity": {
+            "type": "string",
+            "enum": ["critical", "major", "minor"],
+            "description": "critical blocks the build/deploy; major must be fixed before launch; minor is informational."
+          },
+          "category": {
+            "type": "string",
+            "description": "Auditor-specific category (e.g. \"a11y/contrast\", \"perf/lcp\", \"ui/spacing-token-violation\")."
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1
+          },
+          "location": {
+            "type": "string",
+            "description": "Where the finding lives (file path, URL, Figma node id, …)."
+          },
+          "suggested_fix": {
+            "type": "string"
+          },
+          "rule_id": {
+            "type": "string",
+            "description": "Stable id of the rule (e.g. axe-core rule id, Lighthouse audit id) when one exists. Allows healer to match against known-patterns."
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["agent", "duration_seconds", "tokens_used"],
+      "properties": {
+        "agent": {
+          "type": "string",
+          "description": "Agent name as in factory-core/.opencode/agents/."
+        },
+        "duration_seconds": { "type": "number", "minimum": 0 },
+        "tokens_used":      { "type": "integer", "minimum": 0 },
+        "model":            { "type": "string", "description": "Model id used (e.g. \"opencode/kimi-k2.5\")." },
+        "audited_url":      { "type": "string", "description": "URL or path that was audited." }
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "signal_type": "builder-result",
+  "status": "failed",
+  "artifacts_created": [],
+  "tests_passed": false,
+  "summary": "Could not build /pripadove-studie/[slug]: Sanity client throws on missing GROQ field 'gallery'.",
+  "next_suggested_action": "spawn-healer",
+  "error": {
+    "type": "build-failure",
+    "message": "ReferenceError: Cannot read properties of undefined (reading 'gallery') at src/pages/pripadove-studie/[slug].astro:18",
+    "recovery_attempted": true,
+    "logs_excerpt": "[error] CaseStudy.gallery is not defined on schema 'caseStudy'. Run sanity schema validate to confirm. Tried two re-orderings of GROQ projection without success."
+  },
+  "metadata": {
+    "agent": "frontend-builder",
+    "duration_seconds": 64.7,
+    "tokens_used": 7800,
+    "model": "opencode/minimax-m2.7",
+    "task_id": "T-019"
+  }
+}

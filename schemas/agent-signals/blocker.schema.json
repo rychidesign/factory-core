@@ -1,0 +1,106 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://factory-core.rychidesign/schemas/agent-signals/blocker.schema.json",
+  "title": "Blocker signal",
+  "description": "Emitted by any agent when it encounters a situation requiring a human decision. Stored as .factory-state/blockers/B-NNN.json and surfaced in the dashboard with type-specific UI (PRD US-DA-008).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "signal_type",
+    "blocker_id",
+    "type",
+    "severity",
+    "description",
+    "context_files",
+    "created_at",
+    "raised_by"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+(\\.\\d+)?$"
+    },
+    "signal_type": {
+      "const": "blocker"
+    },
+    "blocker_id": {
+      "type": "string",
+      "pattern": "^B-\\d{3}$",
+      "description": "Stable blocker id, monotonically allocated within a project (B-001, B-002, …)."
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "design-approval-needed",
+        "copy-variants",
+        "missing-info",
+        "scope-change",
+        "missing-component",
+        "credential-needed",
+        "client-decision",
+        "ambiguous-spec"
+      ],
+      "description": "Drives which dashboard UI is rendered. Adding a new value requires a UI implementation in the dashboard's BlockerResolver/."
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["informational", "blocks-phase", "blocks-project"],
+      "description": "informational = factory continues other work; blocks-phase = current phase paused, other phases may proceed; blocks-project = whole factory paused until resolved."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 5,
+      "description": "Human-readable explanation. Shown verbatim in the dashboard."
+    },
+    "options": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "label"],
+        "properties": {
+          "id":         { "type": "string", "minLength": 1 },
+          "label":      { "type": "string", "minLength": 1 },
+          "preview":    { "type": "string", "description": "Short preview text rendered alongside the option." },
+          "preview_path": { "type": "string", "description": "Path to a file (image, markdown, json) used for richer preview rendering." },
+          "consequence": { "type": "string", "description": "Short note on what choosing this option triggers." }
+        }
+      },
+      "description": "Discrete choices for the operator. Empty/absent for free-form blockers."
+    },
+    "context_files": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Project-relative paths the operator may want to inspect when resolving."
+    },
+    "raised_by": {
+      "type": "string",
+      "description": "Agent name that emitted the blocker."
+    },
+    "created_at": { "type": "string", "format": "date-time" },
+    "phase":      { "$ref": "https://factory-core.rychidesign/schemas/state.schema.json#/definitions/phaseName" },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Optional deadline by which a decision is needed (e.g. before a deploy window). Past expiry escalates to Level 3."
+    },
+    "resolution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["resolved_at", "resolved_by", "outcome"],
+      "properties": {
+        "resolved_at":  { "type": "string", "format": "date-time" },
+        "resolved_by":  { "type": "string" },
+        "outcome": {
+          "type": "string",
+          "enum": ["option-chosen", "free-form", "rejected", "deferred"]
+        },
+        "chosen_option_id": { "type": "string", "description": "Set when outcome=option-chosen." },
+        "free_form_value":  { "type": "string", "description": "Set when outcome=free-form." },
+        "notes":            { "type": "string" }
+      },
+      "description": "Set when the blocker is resolved. Until present, the blocker is pending."
+    }
+  }
+}

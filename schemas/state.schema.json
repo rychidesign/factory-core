@@ -1,0 +1,218 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://factory-core.rychidesign/schemas/state.schema.json",
+  "title": "Factory state",
+  "description": "Live project state. One file per project at .factory-state/state.json. Read at the start and written at the end of every orchestrator iteration. Atomic writes (write to .tmp + rename). See ARCHITECTURE §3.2.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "project_id",
+    "status",
+    "current_phase",
+    "phases",
+    "plan_progress",
+    "health",
+    "last_iteration",
+    "last_updated"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+(\\.\\d+)?$",
+      "description": "State schema version (semver). Must match a known version of state.schema.json."
+    },
+    "project_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "Stable project id, mirrored from spec/meta.yaml."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "initializing",
+        "running",
+        "paused",
+        "blocked",
+        "failed",
+        "complete",
+        "cancelled"
+      ],
+      "description": "Top-level project lifecycle. \"initializing\" = bootstrap running. \"blocked\" = all progress halted on human gate or unresolved blockers. \"failed\" = auto-stopped on budget/failure caps. \"cancelled\" = manually stopped, will not resume."
+    },
+    "current_phase": {
+      "$ref": "#/definitions/phaseName"
+    },
+    "phases": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bootstrap",
+        "architecture",
+        "design",
+        "foundation",
+        "content",
+        "build",
+        "qa",
+        "polish",
+        "deploy"
+      ],
+      "properties": {
+        "bootstrap":     { "$ref": "#/definitions/phase" },
+        "architecture":  { "$ref": "#/definitions/phase" },
+        "design":        { "$ref": "#/definitions/designPhase" },
+        "foundation":    { "$ref": "#/definitions/phase" },
+        "content":       { "$ref": "#/definitions/phase" },
+        "build":         { "$ref": "#/definitions/phase" },
+        "qa":            { "$ref": "#/definitions/phase" },
+        "polish":        { "$ref": "#/definitions/phase" },
+        "deploy":        { "$ref": "#/definitions/phase" }
+      },
+      "description": "All 9 phases must be present, even if pending. Design has the only sub_phases."
+    },
+    "plan_progress": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total_tasks", "completed", "in_progress", "pending"],
+      "properties": {
+        "total_tasks":  { "type": "integer", "minimum": 0 },
+        "completed":    { "type": "integer", "minimum": 0 },
+        "in_progress":  { "type": "integer", "minimum": 0 },
+        "pending":      { "type": "integer", "minimum": 0 },
+        "blocked":      { "type": "integer", "minimum": 0 },
+        "skipped":      { "type": "integer", "minimum": 0 }
+      },
+      "description": "Counters across plan.md task checkboxes. Sum (completed + in_progress + pending + blocked + skipped) should equal total_tasks; orchestrator recomputes at write time."
+    },
+    "active_work": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["agent", "task", "started_at"],
+          "properties": {
+            "agent": { "type": "string" },
+            "task": { "type": "string" },
+            "task_id": { "type": "string", "description": "Plan task id, e.g. \"T-021\"." },
+            "started_at": { "type": "string", "format": "date-time" },
+            "tokens_used_so_far": { "type": "integer", "minimum": 0 },
+            "estimated_remaining_tokens": { "type": "integer", "minimum": 0 }
+          }
+        }
+      ],
+      "description": "Currently spawned agent and its task, or null when idle / paused."
+    },
+    "recent_iterations": {
+      "type": "array",
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["iteration", "timestamp", "decision"],
+        "properties": {
+          "iteration":        { "type": "integer", "minimum": 0 },
+          "timestamp":        { "type": "string", "format": "date-time" },
+          "decision":         { "type": "string", "description": "Short verb: \"spawn\", \"agent_complete\", \"advance\", \"escalate\", \"pause\", …" },
+          "agent_spawned":    { "type": "string" },
+          "task":             { "type": "string" },
+          "result":           { "type": "string", "enum": ["complete", "partial", "failed", "passed", "warning"] },
+          "tokens":           { "type": "integer", "minimum": 0 },
+          "duration_seconds": { "type": "number", "minimum": 0 }
+        }
+      },
+      "description": "Rolling window of the most recent iterations the orchestrator reads to anchor stateless decisions. Bounded for context size."
+    },
+    "blockers": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pending_count", "pending_ids"],
+      "properties": {
+        "pending_count": { "type": "integer", "minimum": 0 },
+        "pending_ids": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^B-\\d{3}$" }
+        }
+      }
+    },
+    "health": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "consecutive_failures",
+        "tokens_used",
+        "tokens_budget",
+        "cost_used_usd",
+        "cost_budget_usd",
+        "budget_used_percent"
+      ],
+      "properties": {
+        "consecutive_failures":   { "type": "integer", "minimum": 0 },
+        "total_failures_session": { "type": "integer", "minimum": 0 },
+        "budget_used_percent":    { "type": "number",  "minimum": 0, "maximum": 200, "description": "max(tokens_used/tokens_budget, cost_used_usd/cost_budget_usd) × 100, clamped to 200." },
+        "tokens_used":            { "type": "integer", "minimum": 0 },
+        "tokens_budget":          { "type": "integer", "minimum": 0 },
+        "cost_used_usd":          { "type": "number",  "minimum": 0 },
+        "cost_budget_usd":        { "type": "number",  "minimum": 0 }
+      }
+    },
+    "last_iteration": { "type": "integer", "minimum": 0 },
+    "last_updated":   { "type": "string", "format": "date-time" },
+    "paused_at":      { "type": "string", "format": "date-time" },
+    "paused_reason":  { "type": "string" }
+  },
+  "definitions": {
+    "phaseName": {
+      "type": "string",
+      "enum": [
+        "bootstrap",
+        "architecture",
+        "design",
+        "foundation",
+        "content",
+        "build",
+        "qa",
+        "polish",
+        "deploy"
+      ]
+    },
+    "phaseStatus": {
+      "type": "string",
+      "enum": ["pending", "in_progress", "blocked", "complete", "failed", "skipped"]
+    },
+    "phase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status":       { "$ref": "#/definitions/phaseStatus" },
+        "started_at":   { "type": "string", "format": "date-time" },
+        "completed_at": { "type": "string", "format": "date-time" },
+        "blocker_id":   { "type": "string", "pattern": "^B-\\d{3}$", "description": "Set when status=blocked, references blockers/B-XXX.json." },
+        "notes":        { "type": "string" }
+      }
+    },
+    "designPhase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status":       { "$ref": "#/definitions/phaseStatus" },
+        "started_at":   { "type": "string", "format": "date-time" },
+        "completed_at": { "type": "string", "format": "date-time" },
+        "blocker_id":   { "type": "string", "pattern": "^B-\\d{3}$" },
+        "notes":        { "type": "string" },
+        "sub_phases": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["direction", "figma_generation", "lock_extract"],
+          "properties": {
+            "direction":        { "$ref": "#/definitions/phase" },
+            "figma_generation": { "$ref": "#/definitions/phase" },
+            "lock_extract":     { "$ref": "#/definitions/phase" }
+          }
+        }
+      }
+    }
+  }
+}

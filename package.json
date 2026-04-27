@@ -14,7 +14,11 @@
   },
   "scripts": {
     "spec:validate": "node tools/spec-validate",
-    "spec:validate:examples": "for d in examples/specs/*/; do echo \"--- $d ---\"; node tools/spec-validate \"$d\" || exit 1; done"
+    "spec:validate:examples": "for d in examples/specs/*/; do echo \"--- $d ---\"; node tools/spec-validate \"$d\" || exit 1; done",
+    "validate:json": "node tools/validate-json",
+    "validate:jsonl": "node tools/validate-jsonl",
+    "validate:plan": "node tools/validate-plan",
+    "validate:examples": "bash tools/validate-examples.sh"
   },
   "dependencies": {
     "ajv": "^8.17.1",

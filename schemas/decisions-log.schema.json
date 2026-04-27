@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://factory-core.rychidesign/schemas/decisions-log.schema.json",
+  "title": "Decisions log entry",
+  "description": "Validates ONE entry of decisions.jsonl. The file itself is JSONL (one object per line, no surrounding array). Append-only audit trail of every orchestrator decision; the orchestrator reads only the last ~5 entries when re-deriving stateless context.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["iter", "ts", "decision"],
+  "properties": {
+    "iter": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Iteration number this decision belongs to. Strictly monotonic across the log."
+    },
+    "ts": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 timestamp the decision was made (UTC preferred)."
+    },
+    "decision": {
+      "type": "string",
+      "enum": [
+        "spawn",
+        "agent_complete",
+        "advance",
+        "advance-phase",
+        "escalate",
+        "pause",
+        "resume",
+        "blocker_created",
+        "blocker_resolved",
+        "budget_alert",
+        "manual_intervention",
+        "complete",
+        "fail"
+      ],
+      "description": "Decision verb. \"advance\" = task within phase; \"advance-phase\" = phase boundary."
+    },
+    "agent": {
+      "type": "string",
+      "description": "Agent involved (the one being spawned for \"spawn\", the one that finished for \"agent_complete\")."
+    },
+    "task": {
+      "type": "string",
+      "description": "Plan task description, e.g. \"Build /case-studies/siemens\"."
+    },
+    "task_id": {
+      "type": "string",
+      "description": "Plan task id, e.g. \"T-021\"."
+    },
+    "rationale": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Short reason the orchestrator picked this action. Drives audit trail and human review."
+    },
+    "result_status": {
+      "type": "string",
+      "enum": ["complete", "partial", "failed", "passed", "warning", "blocked"]
+    },
+    "tokens": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Tokens used by the agent invocation that this decision summarises (only present for agent_complete and similar)."
+    },
+    "duration_s": {
+      "type": "number",
+      "minimum": 0
+    },
+    "from_phase":  { "$ref": "https://factory-core.rychidesign/schemas/state.schema.json#/definitions/phaseName" },
+    "to_phase":    { "$ref": "https://factory-core.rychidesign/schemas/state.schema.json#/definitions/phaseName" },
+    "blocker_id":  { "type": "string", "pattern": "^B-\\d{3}$" },
+    "level":       { "type": "integer", "enum": [1, 2, 3], "description": "Escalation level for decision=\"escalate\"." },
+    "alert_type":  {
+      "type": "string",
+      "enum": ["75-percent", "95-percent", "100-percent"],
+      "description": "Threshold reached for decision=\"budget_alert\"."
+    },
+    "operator": {
+      "type": "string",
+      "description": "Set on decision=\"manual_intervention\" (who edited state)."
+    },
+    "notes": { "type": "string" }
+  }
+}

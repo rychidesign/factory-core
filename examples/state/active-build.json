@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.0",
+  "project_id": "acme-precision-2026",
+  "status": "running",
+  "current_phase": "build",
+  "phases": {
+    "bootstrap":     { "status": "complete", "started_at": "2026-04-25T10:00:00Z", "completed_at": "2026-04-25T10:08:32Z" },
+    "architecture":  { "status": "complete", "started_at": "2026-04-25T10:09:00Z", "completed_at": "2026-04-25T11:42:11Z" },
+    "design": {
+      "status": "complete",
+      "started_at":   "2026-04-25T11:43:00Z",
+      "completed_at": "2026-04-26T18:50:00Z",
+      "sub_phases": {
+        "direction":        { "status": "complete", "completed_at": "2026-04-25T15:00:00Z" },
+        "figma_generation": { "status": "complete", "completed_at": "2026-04-26T17:30:00Z" },
+        "lock_extract":     { "status": "complete", "completed_at": "2026-04-26T18:50:00Z" }
+      }
+    },
+    "foundation": { "status": "complete", "started_at": "2026-04-26T18:55:00Z", "completed_at": "2026-04-26T20:14:00Z" },
+    "content":    { "status": "complete", "started_at": "2026-04-26T20:15:00Z", "completed_at": "2026-04-27T08:30:00Z" },
+    "build":      { "status": "in_progress", "started_at": "2026-04-27T08:31:00Z" },
+    "qa":         { "status": "pending" },
+    "polish":     { "status": "pending" },
+    "deploy":     { "status": "pending" }
+  },
+  "plan_progress": {
+    "total_tasks": 47,
+    "completed": 32,
+    "in_progress": 1,
+    "pending": 14
+  },
+  "active_work": {
+    "agent": "frontend-builder",
+    "task": "Build /sluzby/consulting page",
+    "task_id": "T-021",
+    "started_at": "2026-04-27T14:32:00Z",
+    "tokens_used_so_far": 8420,
+    "estimated_remaining_tokens": 4000
+  },
+  "recent_iterations": [
+    {
+      "iteration": 84,
+      "timestamp": "2026-04-27T14:25:18Z",
+      "decision": "agent_complete",
+      "agent_spawned": "frontend-builder",
+      "task": "Build /pripadove-studie/[slug]",
+      "result": "complete",
+      "tokens": 9120,
+      "duration_seconds": 88.4
+    },
+    {
+      "iteration": 85,
+      "timestamp": "2026-04-27T14:30:42Z",
+      "decision": "advance",
+      "task": "Build /sluzby/consulting page"
+    },
+    {
+      "iteration": 86,
+      "timestamp": "2026-04-27T14:32:00Z",
+      "decision": "spawn",
+      "agent_spawned": "frontend-builder",
+      "task": "Build /sluzby/consulting page"
+    }
+  ],
+  "blockers": {
+    "pending_count": 0,
+    "pending_ids": []
+  },
+  "health": {
+    "consecutive_failures": 0,
+    "total_failures_session": 2,
+    "budget_used_percent": 34,
+    "tokens_used": 1240000,
+    "tokens_budget": 5000000,
+    "cost_used_usd": 2.40,
+    "cost_budget_usd": 10.00
+  },
+  "last_iteration": 86,
+  "last_updated": "2026-04-27T14:32:00Z"
+}

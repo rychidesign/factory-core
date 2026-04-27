@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "signal_type": "builder-result",
+  "status": "complete",
+  "artifacts_created": [
+    "src/pages/sluzby/consulting.astro",
+    "src/components/services/ServiceFAQ.astro"
+  ],
+  "artifacts_modified": [
+    "src/components/services/ServiceHero.astro",
+    "tailwind.config.ts"
+  ],
+  "tests_passed": true,
+  "summary": "Built /sluzby/consulting page with hero, value-props grid, three-step process and FAQ; reused ServiceHero (extended with accent variant), no new tokens introduced.",
+  "next_suggested_action": "continue-plan",
+  "metadata": {
+    "agent": "frontend-builder",
+    "duration_seconds": 92.1,
+    "tokens_used": 11400,
+    "model": "opencode/minimax-m2.7",
+    "task_id": "T-021"
+  }
+}

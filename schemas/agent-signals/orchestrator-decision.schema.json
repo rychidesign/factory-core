@@ -1,0 +1,59 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://factory-core.rychidesign/schemas/agent-signals/orchestrator-decision.schema.json",
+  "title": "Orchestrator decision signal",
+  "description": "Emitted by the orchestrator at the end of every iteration. The single source of truth for what the factory chose to do this iteration. Mirrored into decisions.jsonl as the iteration's primary entry. See ARCHITECTURE §3.1.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "signal_type",
+    "action",
+    "rationale",
+    "iteration",
+    "timestamp"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+(\\.\\d+)?$"
+    },
+    "signal_type": {
+      "const": "orchestrator-decision"
+    },
+    "action": {
+      "type": "string",
+      "enum": ["spawn", "advance-phase", "escalate", "pause", "complete", "wait"],
+      "description": "What the orchestrator decided. \"wait\" = no progress this iteration (human gate, blocker, or paused); end iteration without spawning."
+    },
+    "rationale": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Short reason. Logged into decisions.jsonl and surfaced in dashboard."
+    },
+    "iteration": { "type": "integer", "minimum": 0 },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "agent":     { "type": "string", "description": "Required when action=\"spawn\"." },
+    "task":      { "type": "string", "description": "Required when action=\"spawn\"." },
+    "task_id":   { "type": "string", "description": "Plan task id; recommended when action=\"spawn\"." },
+    "from_phase": { "$ref": "https://factory-core.rychidesign/schemas/state.schema.json#/definitions/phaseName", "description": "Required when action=\"advance-phase\"." },
+    "to_phase":   { "$ref": "https://factory-core.rychidesign/schemas/state.schema.json#/definitions/phaseName", "description": "Required when action=\"advance-phase\"." },
+    "level":     { "type": "integer", "enum": [1, 2, 3], "description": "Required when action=\"escalate\"." },
+    "reason":    { "type": "string",  "description": "Required when action=\"escalate\". Why this is being escalated." },
+    "blocker_id": { "type": "string", "pattern": "^B-\\d{3}$", "description": "Optional reference when waiting on or escalating because of a blocker." }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "action": { "const": "spawn" } }, "required": ["action"] },
+      "then": { "required": ["agent", "task"] }
+    },
+    {
+      "if": { "properties": { "action": { "const": "advance-phase" } }, "required": ["action"] },
+      "then": { "required": ["from_phase", "to_phase"] }
+    },
+    {
+      "if": { "properties": { "action": { "const": "escalate" } }, "required": ["action"] },
+      "then": { "required": ["level", "reason"] }
+    }
+  ]
+}

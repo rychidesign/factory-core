@@ -1,0 +1,64 @@
+#!/usr/bin/env node
+// Generic JSON Schema validator.
+//
+// Usage: validate-json <schema-path> <data-path>
+//
+// All sibling schemas under factory-core/schemas/ that have an $id are
+// auto-registered so cross-file $ref works without manual wiring.
+//
+// Exit codes: 0 valid / 1 invalid / 2 invocation error.
+
+import { readFileSync, existsSync } from "node:fs";
+import { resolve, dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { buildAjv, compileFor, formatErr, red, green, die } from "./lib.mjs";
+
+function main() {
+  const [, , schemaArg, dataArg] = process.argv;
+  if (!schemaArg || !dataArg || schemaArg === "--help" || schemaArg === "-h") {
+    process.stdout.write(
+      "Usage: validate-json <schema-path> <data-path>\n" +
+      "Validates a JSON data file against a JSON Schema. Sibling schemas\n" +
+      "under factory-core/schemas/ are auto-registered for cross-file $ref.\n",
+    );
+    process.exit(schemaArg ? 0 : 2);
+  }
+
+  const schemaPath = resolve(schemaArg);
+  const dataPath = resolve(dataArg);
+  if (!existsSync(schemaPath)) die(`schema not found: ${schemaPath}`);
+  if (!existsSync(dataPath)) die(`data not found: ${dataPath}`);
+
+  const ajv = buildAjv();
+  let schema;
+  try {
+    schema = JSON.parse(readFileSync(schemaPath, "utf8"));
+  } catch (e) {
+    die(`schema parse failed: ${e.message}`);
+  }
+  let data;
+  try {
+    data = JSON.parse(readFileSync(dataPath, "utf8"));
+  } catch (e) {
+    process.stdout.write(`${red("✗")} ${dataArg}\n    ${red("invalid JSON:")} ${e.message}\n`);
+    process.exit(1);
+  }
+
+  let validate;
+  try {
+    validate = compileFor(ajv, schema);
+  } catch (e) {
+    die(`schema compile failed: ${e.message}`);
+  }
+
+  if (validate(data)) {
+    process.stdout.write(`${green("✓")} ${dataArg}\n`);
+    process.exit(0);
+  } else {
+    process.stdout.write(`${red("✗")} ${dataArg}\n`);
+    for (const err of validate.errors) process.stdout.write(formatErr(err) + "\n");
+    process.exit(1);
+  }
+}
+
+main();

@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "signal_type": "orchestrator-decision",
+  "action": "spawn",
+  "agent": "frontend-builder",
+  "task": "Build /sluzby/consulting page",
+  "task_id": "T-021",
+  "rationale": "Next pending task in plan after /pripadove-studie/[slug]. No blockers. Token budget at 24%, plenty of room.",
+  "iteration": 86,
+  "timestamp": "2026-04-27T14:32:00Z"
+}

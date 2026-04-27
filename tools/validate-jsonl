@@ -1,0 +1,74 @@
+#!/usr/bin/env node
+// JSON Lines validator. Validates each non-empty line as JSON against a schema.
+//
+// Usage: validate-jsonl <schema-path> <jsonl-path>
+//
+// Exit codes: 0 all lines valid / 1 at least one invalid / 2 invocation error.
+
+import { readFileSync, existsSync } from "node:fs";
+import { resolve } from "node:path";
+import { buildAjv, compileFor, formatErr, red, green, die } from "./lib.mjs";
+
+function main() {
+  const [, , schemaArg, dataArg] = process.argv;
+  if (!schemaArg || !dataArg || schemaArg === "--help" || schemaArg === "-h") {
+    process.stdout.write(
+      "Usage: validate-jsonl <schema-path> <jsonl-path>\n" +
+      "Validates each non-empty line as JSON against the given schema.\n",
+    );
+    process.exit(schemaArg ? 0 : 2);
+  }
+
+  const schemaPath = resolve(schemaArg);
+  const dataPath = resolve(dataArg);
+  if (!existsSync(schemaPath)) die(`schema not found: ${schemaPath}`);
+  if (!existsSync(dataPath)) die(`data not found: ${dataPath}`);
+
+  const ajv = buildAjv();
+  let schema;
+  try {
+    schema = JSON.parse(readFileSync(schemaPath, "utf8"));
+  } catch (e) {
+    die(`schema parse failed: ${e.message}`);
+  }
+
+  let validate;
+  try {
+    validate = compileFor(ajv, schema);
+  } catch (e) {
+    die(`schema compile failed: ${e.message}`);
+  }
+
+  const lines = readFileSync(dataPath, "utf8").split("\n");
+  let total = 0;
+  let errors = 0;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (!line.trim()) continue;
+    total++;
+    let entry;
+    try {
+      entry = JSON.parse(line);
+    } catch (e) {
+      process.stdout.write(`${red("✗")} ${dataArg}:${i + 1} invalid JSON: ${e.message}\n`);
+      errors++;
+      continue;
+    }
+    if (!validate(entry)) {
+      process.stdout.write(`${red("✗")} ${dataArg}:${i + 1}\n`);
+      for (const err of validate.errors) process.stdout.write(formatErr(err) + "\n");
+      errors++;
+    }
+  }
+
+  if (errors === 0) {
+    process.stdout.write(`${green("✓")} ${dataArg} (${total} entr${total === 1 ? "y" : "ies"})\n`);
+    process.exit(0);
+  } else {
+    process.stdout.write(`${red(`✗ ${errors}/${total} entr${total === 1 ? "y" : "ies"} invalid`)}\n`);
+    process.exit(1);
+  }
+}
+
+main();

@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "signal_type": "auditor-result",
+  "status": "passed",
+  "findings": [
+    {
+      "severity": "minor",
+      "category": "a11y/aria-best-practices",
+      "message": "Heading skip from h2 to h4 on /sluzby/consulting",
+      "location": "src/pages/sluzby/consulting.astro:42",
+      "suggested_fix": "Insert h3 wrapper or change heading levels to be sequential.",
+      "rule_id": "axe/heading-order"
+    }
+  ],
+  "metadata": {
+    "agent": "accessibility-auditor",
+    "duration_seconds": 12.3,
+    "tokens_used": 4200,
+    "model": "opencode/minimax-m2.5",
+    "audited_url": "https://acme-precision-staging.pages.dev/sluzby/consulting"
+  }
+}
