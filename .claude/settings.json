@@ -27,7 +27,11 @@
       "Bash(node tools/spec-validate examples/specs/eva-portfolio-2026/)",
       "Bash(node tools/spec-validate examples/specs/bistro-narozi-2026/)",
       "Bash(pnpm spec:validate:examples)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(chmod +x tools/validate-json tools/validate-jsonl tools/validate-plan)",
+      "Bash(chmod +x tools/validate-examples.sh)",
+      "Bash(pnpm validate:examples)",
+      "Bash(git rm *)"
     ]
   }
 }
