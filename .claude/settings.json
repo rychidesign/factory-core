@@ -37,7 +37,12 @@
       "Bash(pnpm typecheck *)",
       "Bash(pnpm lint *)",
       "Bash(awk -F': ' '{print $3}')",
-      "Bash(grep -E \"^  [a-z][a-z-]+:$\" stack-catalog.yaml)"
+      "Bash(grep -E \"^  [a-z][a-z-]+:$\" stack-catalog.yaml)",
+      "Bash(command -v yq)",
+      "Bash(yq --version)",
+      "Bash(chmod +x .opencode/hooks/permission-gate.mjs .opencode/hooks/post-tool-use.mjs tools/test-permissions.mjs)",
+      "Bash(node tools/test-permissions.mjs)",
+      "Bash(pnpm test:permissions)"
     ]
   }
 }
