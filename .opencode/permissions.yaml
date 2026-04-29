@@ -1,0 +1,571 @@
+# Per-agent allow/deny matrix. The single source of truth for what each
+# agent may write to or execute via Bash, enforced by hooks/permission-gate.mjs
+# at every tool call. See ADR-0005 (hook-based permission enforcement) and
+# ARCHITECTURE.md §5.
+#
+# Matching rules:
+#   - Patterns use bash-style globs: * matches anything (including /),
+#     ** is normalised to * by the hook before matching.
+#   - Resources are project-relative paths for "write" tools and command
+#     strings for "bash" tools.
+#   - Deny wins: if a resource matches any deny pattern, the call is blocked
+#     even if it also matches an allow pattern.
+#   - Default fallback: any agent not listed below uses the `default` entry,
+#     which denies everything. New agents MUST be added here before they ship.
+#
+# Adding a new agent: append a new entry with `write` and `bash` allow/deny.
+# Run `pnpm test:permissions` to verify the matrix doesn't leave the agent
+# stuck (every agent should have at least one viable allow path).
+
+schema_version: "1.0"
+
+agents:
+
+  # -- Orchestration & bootstrap ------------------------------------------
+
+  orchestrator:
+    description: >-
+      Stateless workflow controller. Reads state.json + plan.md + recent
+      decisions; emits orchestrator-decision signals; never touches
+      workspace code or spec.
+    write:
+      allow:
+        - ".factory-state/state.json"
+        - ".factory-state/state.json.tmp.*"
+        - ".factory-state/plan.md"
+        - ".factory-state/plan.md.tmp.*"
+        - ".factory-state/decisions.jsonl"
+        - ".factory-state/logs/orchestrator.jsonl"
+        - ".factory-state/blockers/**"
+      deny:
+        - "spec/**"
+        - ".factory-state/workspace/**"
+        - ".factory-state/artifacts/**"
+        - "factory-core/**"
+    bash:
+      allow:
+        - "git status"
+        - "git status *"
+        - "git log *"
+        - "git rev-parse *"
+        - "ls"
+        - "ls *"
+        - "cat *"
+        - "systemctl status *"
+      deny:
+
+  bootstrap-agent:
+    description: >-
+      Initialises a fresh project: validates spec, creates .factory-state/,
+      copies template into workspace, initial git repo. Runs once per project.
+    write:
+      allow:
+        - ".factory-state/**"
+        - ".gitignore"
+        - "README.md"
+      deny:
+        - "spec/**"
+        - "factory-core/**"
+    bash:
+      allow:
+        - "cp -r *"
+        - "mkdir -p *"
+        - "git init"
+        - "git init *"
+        - "git add *"
+        - "git commit *"
+        - "git config user.*"
+        - "pnpm install"
+        - "pnpm install *"
+        - "node tools/spec-validate *"
+        - "ls"
+        - "ls *"
+        - "cat *"
+      deny:
+        - "git push *"
+        - "rm -rf *"
+        - "sudo *"
+        - "curl *"
+        - "wget *"
+        - "ssh *"
+
+  spec-validator:
+    description: "Runs schema validation on spec/ (Phase 0 + on-demand)."
+    write:
+      allow:
+        - ".factory-state/logs/spec-validator.jsonl"
+      deny:
+        - "spec/**"
+        - ".factory-state/state.json"
+        - ".factory-state/plan.md"
+    bash:
+      allow:
+        - "node tools/spec-validate *"
+        - "node tools/validate-json *"
+        - "ls *"
+        - "cat *"
+      deny:
+
+  # -- Architecture --------------------------------------------------------
+
+  architect-structure:
+    description: "Generates sitemap.json + content-model.json from spec."
+    write:
+      allow:
+        - ".factory-state/artifacts/architecture/**"
+        - ".factory-state/logs/architect-structure.jsonl"
+      deny:
+        - "spec/**"
+        - ".factory-state/workspace/**"
+        - ".factory-state/state.json"
+        - ".factory-state/plan.md"
+    bash:
+      allow:
+        - "ls *"
+        - "cat *"
+      deny:
+
+  architect-technical:
+    description: "Confirms stack track, identifies dependencies, writes technical-plan.md."
+    write:
+      allow:
+        - ".factory-state/artifacts/architecture/**"
+        - ".factory-state/logs/architect-technical.jsonl"
+      deny:
+        - "spec/**"
+        - ".factory-state/workspace/**"
+        - ".factory-state/state.json"
+        - ".factory-state/plan.md"
+    bash:
+      allow:
+        - "ls *"
+        - "cat *"
+      deny:
+
+  # -- Design phase --------------------------------------------------------
+
+  design-director:
+    description: "Generates 3 design directions in Phase 2a. May scrape reference URLs."
+    write:
+      allow:
+        - ".factory-state/artifacts/design/directions.json"
+        - ".factory-state/artifacts/design/moodboards/**"
+        - ".factory-state/logs/design-director.jsonl"
+      deny:
+        - "spec/**"
+        - ".factory-state/workspace/**"
+    bash:
+      allow:
+        - "npx playwright *"
+        - "ls *"
+        - "cat *"
+      deny:
+
+  figma-designer:
+    description: "Generates the Figma file via Figma MCP in Phase 2b. No filesystem builds."
+    write:
+      allow:
+        - ".factory-state/artifacts/design/figma-link.txt"
+        - ".factory-state/artifacts/design/figma-progress.json"
+        - ".factory-state/logs/figma-designer.jsonl"
+        - "factory-core/.opencode/skills/figma-patterns/learnings/pending/**"
+      deny:
+        - "spec/**"
+        - ".factory-state/workspace/**"
+        - ".factory-state/state.json"
+    bash:
+      allow:
+        - "ls *"
+        - "cat *"
+      deny:
+
+  figma-extractor:
+    description: "Extracts design-tokens.json + components-manifest.json after Phase 2b human gate."
+    write:
+      allow:
+        - ".factory-state/artifacts/design/design-tokens.json"
+        - ".factory-state/artifacts/design/components-manifest.json"
+        - ".factory-state/artifacts/design/page-references/**"
+        - ".factory-state/logs/figma-extractor.jsonl"
+      deny:
+        - "spec/**"
+        - ".factory-state/workspace/**"
+        - ".factory-state/state.json"
+    bash:
+      allow:
+        - "ls *"
+        - "cat *"
+      deny:
+
+  # -- Content & build -----------------------------------------------------
+
+  content-writer:
+    description: "Generates copy in Phase 4 according to spec tone of voice."
+    write:
+      allow:
+        - ".factory-state/artifacts/content/**"
+        - ".factory-state/logs/content-writer.jsonl"
+      deny:
+        - "spec/**"
+        - ".factory-state/workspace/**"
+        - ".factory-state/state.json"
+        - ".factory-state/artifacts/design/**"
+    bash:
+      allow:
+        - "ls *"
+        - "cat *"
+      deny:
+
+  frontend-builder:
+    description: >-
+      Builds one page or component at a time using design-tokens and
+      components-manifest. Universal — stack-specific knowledge comes via
+      injected skills.
+    write:
+      allow:
+        - ".factory-state/workspace/**"
+        - ".factory-state/artifacts/screenshots/**"
+        - ".factory-state/logs/frontend-builder.jsonl"
+      deny:
+        - "spec/**"
+        - ".factory-state/state.json"
+        - ".factory-state/plan.md"
+        - ".factory-state/decisions.jsonl"
+        - ".factory-state/artifacts/design/**"
+        - ".factory-state/artifacts/architecture/**"
+        - ".factory-state/artifacts/content/**"
+        - "factory-core/**"
+    bash:
+      allow:
+        - "npm *"
+        - "npx *"
+        - "pnpm *"
+        - "git add *"
+        - "git commit *"
+        - "git status"
+        - "git diff *"
+        - "git log *"
+        - "ls"
+        - "ls *"
+        - "cat *"
+      deny:
+        - "git push *"
+        - "git remote *"
+        - "git checkout *"
+        - "git reset --hard *"
+        - "npm publish *"
+        - "pnpm publish *"
+        - "rm -rf *"
+        - "sudo *"
+        - "curl *"
+        - "wget *"
+        - "ssh *"
+        - "scp *"
+        - "chmod -R *"
+        - "chown *"
+
+  cms-builder:
+    description: "Generates CMS schemas (Sanity / Payload) in Phase 3 + 4."
+    write:
+      allow:
+        - ".factory-state/workspace/src/sanity/**"
+        - ".factory-state/workspace/studio/**"
+        - ".factory-state/workspace/sanity.config.ts"
+        - ".factory-state/workspace/payload.config.ts"
+        - ".factory-state/logs/cms-builder.jsonl"
+      deny:
+        - "spec/**"
+        - ".factory-state/state.json"
+        - ".factory-state/plan.md"
+        - "factory-core/**"
+    bash:
+      allow:
+        - "npm *"
+        - "npx sanity *"
+        - "npx payload *"
+        - "pnpm *"
+        - "git add *"
+        - "git commit *"
+        - "ls *"
+        - "cat *"
+      deny:
+        - "git push *"
+        - "rm -rf *"
+        - "sudo *"
+        - "curl *"
+        - "wget *"
+
+  auth-builder:
+    description: "Wires up auth (Clerk by default) when scope.auth_required is true."
+    write:
+      allow:
+        - ".factory-state/workspace/src/middleware.ts"
+        - ".factory-state/workspace/src/lib/auth/**"
+        - ".factory-state/workspace/src/components/auth/**"
+        - ".factory-state/workspace/.env.example"
+        - ".factory-state/logs/auth-builder.jsonl"
+      deny:
+        - "spec/**"
+        - ".factory-state/state.json"
+        - "factory-core/**"
+    bash:
+      allow:
+        - "npm *"
+        - "npx clerk *"
+        - "pnpm *"
+        - "git add *"
+        - "git commit *"
+        - "ls *"
+        - "cat *"
+      deny:
+        - "git push *"
+        - "rm -rf *"
+        - "sudo *"
+        - "curl *"
+        - "wget *"
+
+  # -- Audits (QA phase) ---------------------------------------------------
+
+  design-auditor:
+    description: "Cross-page visual consistency, design-token compliance."
+    write:
+      allow:
+        - ".factory-state/artifacts/audits/design-*.json"
+        - ".factory-state/artifacts/screenshots/**"
+        - ".factory-state/logs/design-auditor.jsonl"
+      deny:
+        - "spec/**"
+        - ".factory-state/workspace/**"
+        - ".factory-state/state.json"
+    bash:
+      allow:
+        - "npx playwright *"
+        - "ls *"
+        - "cat *"
+      deny:
+
+  accessibility-auditor:
+    description: "axe-core a11y audit per WCAG level in spec/constraints.yaml."
+    write:
+      allow:
+        - ".factory-state/artifacts/audits/a11y-*.json"
+        - ".factory-state/logs/accessibility-auditor.jsonl"
+      deny:
+        - "spec/**"
+        - ".factory-state/workspace/**"
+        - ".factory-state/state.json"
+    bash:
+      allow:
+        - "npx @axe-core/cli *"
+        - "npx playwright *"
+        - "ls *"
+        - "cat *"
+      deny:
+
+  performance-auditor:
+    description: "Lighthouse CI for mobile + desktop targets in spec/constraints.yaml."
+    write:
+      allow:
+        - ".factory-state/artifacts/audits/perf-*.json"
+        - ".factory-state/logs/performance-auditor.jsonl"
+      deny:
+        - "spec/**"
+        - ".factory-state/workspace/**"
+        - ".factory-state/state.json"
+    bash:
+      allow:
+        - "npx lighthouse *"
+        - "npx playwright *"
+        - "ls *"
+        - "cat *"
+      deny:
+
+  content-auditor:
+    description: "Tone, grammar, no-placeholder check on rendered content."
+    write:
+      allow:
+        - ".factory-state/artifacts/audits/content-*.json"
+        - ".factory-state/logs/content-auditor.jsonl"
+      deny:
+        - "spec/**"
+        - ".factory-state/workspace/**"
+        - ".factory-state/state.json"
+    bash:
+      allow:
+        - "ls *"
+        - "cat *"
+      deny:
+
+  route-auditor:
+    description: "Broken links, 404s, redirects audit."
+    write:
+      allow:
+        - ".factory-state/artifacts/audits/routes-*.json"
+        - ".factory-state/logs/route-auditor.jsonl"
+      deny:
+        - "spec/**"
+        - ".factory-state/workspace/**"
+        - ".factory-state/state.json"
+    bash:
+      allow:
+        - "npx playwright *"
+        - "curl -I *"
+        - "curl -s -o /dev/null *"
+        - "ls *"
+        - "cat *"
+      deny:
+
+  ui-consistency-auditor:
+    description: "Cross-page UI consistency: spacing tokens, font sizes, button variants."
+    write:
+      allow:
+        - ".factory-state/artifacts/audits/ui-consistency-*.json"
+        - ".factory-state/logs/ui-consistency-auditor.jsonl"
+      deny:
+        - "spec/**"
+        - ".factory-state/workspace/**"
+    bash:
+      allow:
+        - "npx playwright *"
+        - "ls *"
+        - "cat *"
+      deny:
+
+  e2e-test-runner:
+    description: "Playwright smoke tests for critical user flows."
+    write:
+      allow:
+        - ".factory-state/artifacts/e2e/**"
+        - ".factory-state/artifacts/audits/e2e-*.json"
+        - ".factory-state/logs/e2e-test-runner.jsonl"
+      deny:
+        - "spec/**"
+        - ".factory-state/workspace/**"
+    bash:
+      allow:
+        - "npx playwright *"
+        - "pnpm test:e2e"
+        - "pnpm test:e2e *"
+        - "ls *"
+        - "cat *"
+      deny:
+
+  code-reviewer:
+    description: "Code quality review (typecheck, lint, structural)."
+    write:
+      allow:
+        - ".factory-state/artifacts/audits/code-review.json"
+        - ".factory-state/logs/code-reviewer.jsonl"
+      deny:
+        - "spec/**"
+        - ".factory-state/workspace/**"
+        - ".factory-state/state.json"
+    bash:
+      allow:
+        - "git diff *"
+        - "git log *"
+        - "git status"
+        - "pnpm typecheck"
+        - "pnpm lint"
+        - "ls *"
+        - "cat *"
+      deny:
+
+  # -- Polish phase --------------------------------------------------------
+
+  animation-polish-agent:
+    description: "Suggests subtle animations in Phase 7. Implements only after human gate."
+    write:
+      allow:
+        - ".factory-state/artifacts/animations/**"
+        - ".factory-state/workspace/src/lib/animations/**"
+        - ".factory-state/logs/animation-polish-agent.jsonl"
+      deny:
+        - "spec/**"
+        - ".factory-state/state.json"
+    bash:
+      allow:
+        - "ls *"
+        - "cat *"
+      deny:
+
+  # -- Deploy phase --------------------------------------------------------
+
+  deployer:
+    description: "Pushes to staging / production via wrangler / vercel."
+    write:
+      allow:
+        - "deploy-info.json"
+        - ".factory-state/artifacts/deploy/**"
+        - ".factory-state/logs/deployer.jsonl"
+      deny:
+        - "spec/**"
+        - ".factory-state/workspace/**"
+        - "factory-core/**"
+    bash:
+      allow:
+        - "npx wrangler *"
+        - "npx vercel *"
+        - "git push *"
+        - "git tag *"
+        - "ls *"
+        - "cat *"
+      deny:
+        - "rm -rf *"
+        - "sudo *"
+        - "wget *"
+        - "curl http://*"
+
+  # -- Recovery / self-improvement -----------------------------------------
+
+  healer:
+    description: >-
+      Recovery agent for unknown failures. Broader writes than builders
+      because it diagnoses across the whole project state. Proposes new
+      patterns to known-patterns/pending/ for human approval.
+    write:
+      allow:
+        - ".factory-state/workspace/**"
+        - ".factory-state/logs/healer.jsonl"
+        - "factory-core/known-patterns/pending/**"
+      deny:
+        - "spec/**"
+        - ".factory-state/state.json"
+        - ".factory-state/plan.md"
+        - ".factory-state/decisions.jsonl"
+        - "factory-core/known-patterns/approved/**"
+        - "factory-core/.opencode/permissions.yaml"
+    bash:
+      allow:
+        - "npm *"
+        - "npx *"
+        - "pnpm *"
+        - "git diff *"
+        - "git log *"
+        - "git status"
+        - "git stash *"
+        - "git restore *"
+        - "ls *"
+        - "cat *"
+      deny:
+        - "git push *"
+        - "git reset --hard *"
+        - "rm -rf *"
+        - "sudo *"
+        - "curl http://*"
+        - "wget *"
+        - "ssh *"
+
+  # -- Fallback ------------------------------------------------------------
+
+  default:
+    description: >-
+      Used by any agent that doesn't match a name above. Denies everything.
+      An unknown agent name is a sign that permissions.yaml is stale —
+      prefer to add the agent explicitly rather than rely on this fallback.
+    write:
+      deny:
+        - "*"
+    bash:
+      deny:
+        - "*"
