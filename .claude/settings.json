@@ -35,7 +35,9 @@
       "Bash(git clone *)",
       "Bash(pnpm build *)",
       "Bash(pnpm typecheck *)",
-      "Bash(pnpm lint *)"
+      "Bash(pnpm lint *)",
+      "Bash(awk -F': ' '{print $3}')",
+      "Bash(grep -E \"^  [a-z][a-z-]+:$\" stack-catalog.yaml)"
     ]
   }
 }
