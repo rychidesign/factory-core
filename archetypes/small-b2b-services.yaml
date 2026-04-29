@@ -1,0 +1,167 @@
+schema_version: "1.0"
+id: small-b2b-services
+name: "Small B2B services"
+
+description: >-
+  Core klientela Rychi Design: výrobní firmy, IT, konzultace, B2B služby
+  obecně. 10-50 zaměstnanců, prodávají složitější produkt nebo službu
+  jiným firmám. Web jako kvalifikační vrstva před obchodním hovorem.
+
+detection:
+  client_phrases:
+    - "Potřebujeme nový web, současný už nám nevyhovuje."
+    - "Naše stará stránka už nereprezentuje, kde jsme dnes."
+    - "Klienti se ztrácí, neumíme vysvětlit, co děláme."
+    - "Chceme generovat víc kvalifikovaných poptávek."
+    - "Konkurence to umí lépe."
+
+  typical_industries:
+    - "průmyslová automatizace, robotika"
+    - "B2B IT (vývoj software, integrace, hosting)"
+    - "poradenství (strategie, právo, daně, HR)"
+    - "engineering services (konstrukce, projektová dokumentace)"
+    - "B2B logistika"
+
+  scope_signals:
+    - "klient má víc než 1 service line, potřebuje je strukturovat"
+    - "existující portfolio případových studií je v PDF, ne na webu"
+    - "obchodní oddělení tráví čas opakovanými otázkami v telefonu"
+    - "marketing má stagnovat — chybí blog / news / changelog"
+
+suggested_stack:
+  track: astro-sanity
+  rationale: >-
+    Statický build + hosted CMS pokrývají 90 % B2B service webů: marketing
+    pages + case studies + příležitostně blog. Klient sám případové studie
+    aktualizuje přes Sanity Studio.
+  alternatives:
+    - track: astro-payload
+      when: "klient má IT tým a chce data on-premise"
+    - track: nextjs-sanity
+      when: "B2B portál pro existující klienty (gated content, login)"
+
+typical_scope:
+  page_count_range: [10, 18]
+  must_have_pages:
+    - homepage
+    - "služby (listing)"
+    - "služba/[slug] (detail)"
+    - "případové studie (listing)"
+    - "případová studie/[slug] (detail)"
+    - "o nás / tým"
+    - kontakt
+    - "ochrana osobních údajů (GDPR)"
+    - "404"
+  common_features:
+    - "strukturovaný kontaktní formulář (typ poptávky, časový horizont)"
+    - "filtrování case studies podle odvětví"
+    - "sticky CTA na detailu služby"
+    - "newsletter signup (občas)"
+    - "career sekce (přibývá za běhu, často 'could' priorita)"
+
+priority_questions:
+  - id: q1
+    question: "Kdo přesně rozhoduje o nákupu — IT manager? CFO? CEO? Více lidí?"
+    why: >-
+      Driveuje primary persona, tone, a strukturu CTA. B2B nákupy mají
+      typicky decision committee — web má servisovat víc rolí současně.
+    surfaces_to: [audience.personas, audience.primary_persona_id]
+
+  - id: q2
+    question: "Máte případové studie s reálnými čísly? Kolik? Můžeme je publikovat?"
+    why: >-
+      Case studies s čísly jsou hlavní důvěryhodnostní páka pro B2B.
+      Bez nich je web cvičení v marketingu, ne důkaz schopnosti.
+    surfaces_to: [scope.pages, goals.success_criteria]
+
+  - id: q3
+    question: "Kdo bude obsah na webu udržovat? Vy, marketing manager, externí?"
+    why: >-
+      Driveuje volbu mezi astro-sanity (klient sám edituje) a astro-payload
+      (interní IT spravuje), nebo headless verze s typed TS daty.
+    surfaces_to: [stack.cms, stack.track]
+
+  - id: q4
+    question: "Jaké fráze používá vaše konkurence — a jaké rozhodně NE?"
+    why: >-
+      B2B trh je často přeplněný stejnými frázemi ("partneři na cestě",
+      "transformace", "synergie"). Identifikace anti-frází chrání tone
+      před plytkostí.
+    surfaces_to: [business.tone_of_voice]
+
+  - id: q5
+    question: "Máte vlastní fotky lidí, prostor, výrobků? Nebo budeme řešit?"
+    why: >-
+      Stock photo automotive/industrial sektoru jsou silně rozpoznatelné.
+      Pokud klient nemá vlastní materiál, design phase musí volit
+      ilustrace, abstraktní imagery, nebo plánovat foto session.
+    surfaces_to: [business.existing_brand, design-direction.imagery_style]
+
+common_gotchas:
+  - title: "USP zní jako 5 jiných firem v oboru"
+    description: >-
+      Klient v intake řekne "děláme kvalitní služby s individuálním
+      přístupem" — to říká úplně každý. Bez konkrétní odlišnosti web
+      nedokáže přesvědčit.
+    mitigation: >-
+      Intake otázka: "Co konkrétně děláte jinak než konkurence? Číslo,
+      proces, certifikace?" Pokud klient nemá odpověď, je to red flag.
+
+  - title: "Klient nemá vlastní fotomateriál"
+    description: >-
+      B2B firmy často nemají kvalitní fotografie lidí, prostor a procesů.
+      Stock photo se v industrial / automotive okruhu rychle pozná
+      a snižuje důvěryhodnost.
+    mitigation: >-
+      Buď naplánovat foto session jako součást projektu (+1-2 dny, +cena),
+      nebo design směrem do typografického / abstraktního nedependent na fotkách.
+
+  - title: "Case studies bez čísel"
+    description: >-
+      Klient má seznam projektů, ale text typu "implementovali jsme řešení
+      pro velkou firmu". Bez konkrétních KPI (úspora času/peněz, zlepšení
+      metriky) je to bezcenné jako důkaz.
+    mitigation: >-
+      Intake explicitně vytáhnout 2-3 čísla per projekt (i kdyby od oka).
+      Pokud klient čísla odmítá zveřejnit, použít range / proxy metriku.
+
+  - title: "Podcenění legal stránky"
+    description: >-
+      Privacy policy, cookies, GDPR notice — klient je odkládá na "to si
+      vyřídíme později". Pak web zůstává bez nich měsíce a riskuje pokutu.
+    mitigation: >-
+      Standardní GDPR/privacy templates dodat hned ze startu, naplnit
+      kontaktní údaje firmy. Klient je dál nemusí řešit.
+
+  - title: "Web jako náhrada obchodního zástupce"
+    description: >-
+      Klient si myslí, že web automaticky nahradí obchod a poptávky budou
+      jen valit. Přehlížený fakt: web je amplifikátor existujícího
+      obchodního procesu, ne jeho substitut.
+    mitigation: >-
+      Reálné očekávání nastavit v intake: web zlepší kvalitu poptávek,
+      nezvýší jejich počet 10×. KPI: lead quality, ne lead quantity.
+
+red_flags:
+  - description: "Klient neumí v jedné větě říct, čím se liší od konkurence."
+    response: >-
+      Není připravený na seriózní web. Doporučit nejdřív positioning
+      workshop (mimo scope factory). Bez toho web bude nesfocusovaný.
+
+  - description: "Klient požaduje 'jako konkurent X' jako jedinou referenci."
+    response: >-
+      Identita značky ne. Web bude vypadat jako kopie. Doporučit
+      iteraci direction (Phase 2a) k odlišnému řešení.
+
+  - description: "Klient nesouhlasí s žádnou konkrétní KPI."
+    response: >-
+      Bez success criteria nelze project ohodnotit jako úspěšný / neúspěšný.
+      Default minimum: form submits / měsíc. Pokud klient odmítá i tohle,
+      project má jiný (nedefinovaný) účel.
+
+confidence:
+  level: medium
+  notes: >-
+    First cut z public knowledge + jedné autentické fráze od operátora.
+    Bude se zúžovat z reálných intakeů. Refine especially priority_questions
+    podle toho, co se v praxi ukáže jako blocking.

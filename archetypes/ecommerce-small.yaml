@@ -1,0 +1,179 @@
+schema_version: "1.0"
+id: ecommerce-small
+name: "E-commerce (small)"
+
+description: >-
+  Malý e-shop do ~200 SKU. V1 archetype-only — dedicated e-commerce stack
+  track přijde post-V1 podle reálné poptávky. Pro V1 mapuje na astro-sanity
+  s Sanity Commerce extension nebo na non-Rychi řešení (Shoptet, Shopify)
+  pokud klient chce komplexní e-shop.
+
+detection:
+  client_phrases:
+    - "Chceme prodávat online."
+    - "Máme [X] produktů, potřebujeme e-shop."
+    - "Současně prodáváme přes Instagram / Facebook, chceme vlastní web."
+    - "Konkurence má e-shop, my zaostáváme."
+    - "Ne, nepotřebujeme nic velkého — jen pár produktů."
+
+  typical_industries:
+    - "ručně vyráběné produkty (keramika, šperky, řemeslo)"
+    - "specialty food / drink (kavárna prodávající kávu, vinotéka)"
+    - "fashion / oblečení malého labelu"
+    - "knihy, hudba, niche merch"
+    - "B2B sales of physical product s malým katalogem"
+
+  scope_signals:
+    - "katalog do ~200 SKU"
+    - "klient zatím nemá payment provider account"
+    - "jednoduchá doprava (1-3 metody, ČR / SK)"
+    - "klient zvládne sám zakládat produkty (schopen Sanity Studio)"
+
+suggested_stack:
+  track: astro-sanity
+  rationale: >-
+    Pro V1 mapuje archetype na default content track plus Sanity Commerce
+    extension nebo Stripe direct integration. Pro velmi jednoduchý katalog
+    (do 30 SKU) lze i s Comgate / GoPay direct redirect a Sanity jako
+    product CMS.
+  alternatives:
+    - track: shoptet
+      when: "klient chce vše v jednom (admin, sklad, doprava, faktury, účetnictví)"
+      note: "není v stack catalogu — externí service, mimo factory pipeline"
+    - track: shopify
+      when: "klient cílí na mezinárodní trh nebo chce velký ecosystem apps"
+      note: "není v stack catalogu — externí service"
+
+typical_scope:
+  page_count_range: [8, 15]
+  must_have_pages:
+    - homepage
+    - "produkty (listing)"
+    - "produkt/[slug] (detail)"
+    - "kategorie/[slug] (listing s filtry)"
+    - "košík"
+    - "checkout"
+    - "objednávka úspěšná"
+    - "můj účet (občas)"
+    - "obchodní podmínky / GDPR / odstoupení"
+    - "404"
+  common_features:
+    - "payment integration (Comgate, GoPay, Stripe)"
+    - "shipping integration (Zásilkovna, PPL, GLS)"
+    - "inventory tracking (out of stock states)"
+    - "VAT / DPH calculation"
+    - "newsletter signup s discount kódem"
+    - "produkt search / filters"
+    - "wishlists (občas, often skip)"
+
+priority_questions:
+  - id: q1
+    question: "Kolik SKU plánujete? V čase: za rok, za 3 roky?"
+    why: >-
+      Driveuje rozhodnutí mezi astro-sanity (do ~200 SKU s Sanity
+      Commerce) vs. doporučení migrovat na Shoptet / Shopify (200+ SKU
+      a víc kategorií). V1 factory není vhodný pro 1000+ SKU.
+    surfaces_to: [scope.estimated_pages, stack.track]
+
+  - id: q2
+    question: "Payment provider — máte už account u některého (Comgate, GoPay, Stripe)?"
+    why: >-
+      Setup payment provider trvá týdny (KYC, smlouvy, integrace). Bez
+      tohoto je launch nemožný. Klient musí začít hned na začátku projektu.
+    surfaces_to: [scope.integrations, stack.third_party_keys_required]
+
+  - id: q3
+    question: "Doprava: kde, jak, jaké metody, kdo balí a posílá?"
+    why: >-
+      Logistika je nejtěžší část malého e-shopu. Pokud klient zatím
+      neřešil "kdo balí, kde balí, jak doprava", je to red flag pro
+      launch readiness.
+    surfaces_to: [scope.integrations]
+
+  - id: q4
+    question: "Účetnictví / fakturace: kdo, jak, jaký systém? Pohoda? iDoklad? Excel?"
+    why: >-
+      VAT compliance, vystavování faktur, evidence DPH — bez plánu
+      bude provoz neudržitelný. Občas to driveuje volbu (Shoptet má
+      faktury built-in, Astro+Stripe ne).
+    surfaces_to: [scope.integrations, constraints.compliance]
+
+  - id: q5
+    question: "Odstoupení od smlouvy 14 dní (EU): proces vrácení peněz, vrácení zboží?"
+    why: >-
+      EU law: 14 days right of withdrawal. Klient na to typicky zapomíná
+      v intake. Web musí mít obchodní podmínky popisující proces, což
+      driveuje content + legal page.
+    surfaces_to: [scope.pages, constraints.compliance]
+
+common_gotchas:
+  - title: "VAT / DPH komplexita"
+    description: >-
+      Klient nepředpokládá DPH, ale brzy překročí 2 mil Kč obrat a stává
+      se plátcem. Web musí umět zobrazovat ceny s/bez DPH a fakturovat
+      správně. Mid-launch změna je bolestivá.
+    mitigation: >-
+      V intake explicitně zeptat se na DPH status a očekávaný roční
+      obrat. Astro+Stripe template má DPH support od začátku, neaktivní
+      ale ready.
+
+  - title: "Stock managementu klient nerozumí"
+    description: >-
+      Klient dá produkt online, prodá se, ale stock zůstane '5 ks'
+      v admin. Druhý zákazník objedná, klient nemá. Reklamace, refund.
+    mitigation: >-
+      Sanity Commerce / Stripe Inventory automaticky decrementuje na
+      objednávku. Klient musí vědět, jak to checkovat při restock.
+      Doplnit do dokumentace pro admin.
+
+  - title: "Photo quality"
+    description: >-
+      Produkty fotografované na mobilu se v e-shopu pozná okamžitě.
+      Snižuje conversion 2-3×. Klient typicky podceňuje.
+    mitigation: >-
+      Standard pre-launch checklist: profesionální produktové fotky
+      (světlo, neutral background, multiple angles). Foto session
+      jako component projektu (1-2 dny, +cena).
+
+  - title: "Dropshipping right of withdrawal"
+    description: >-
+      Klient prodává dropshipping, zboží jde z Číny, return cesta není
+      praktická. EU law však nutí akceptovat 14 dní vrácení. Klient se
+      ocitá v nepříjemných situacích.
+    mitigation: >-
+      Pokud dropshipping, intake explicit "víte, že 14 dní vrácení je
+      law?". Možná raději marketing storefront + objednávka přes 3rd
+      party (Aliexpress affiliate) než vlastní e-shop.
+
+  - title: "GDPR cookies banner"
+    description: >-
+      E-shop typicky tracking (Google Analytics, Facebook Pixel) vyžaduje
+      consent banner. Klient ho odkládá, web měsíce běží non-compliant.
+    mitigation: >-
+      Cookie consent banner (např. CookieConsent open-source) jako součást
+      template / standardní integrace. Aktivní z první deploye.
+
+red_flags:
+  - description: "Klient nemá payment provider account a nemá plán to řešit."
+    response: >-
+      Project nezačne. Bez payment není e-shop. Operátor musí počkat
+      týdny, než klient si zařídí Comgate / GoPay smlouvu. Doporučit
+      odložit factory start.
+
+  - description: "Klient plánuje 1000+ SKU s několika kategoriemi a multilang."
+    response: >-
+      Velký e-shop, V1 factory nevhodný. Doporučit Shoptet / Shopify
+      (out of factory scope) nebo počkat na post-V1 dedicated commerce track.
+
+  - description: "Klient chce 'jako Heureka srovnávač' nebo 'marketplace'."
+    response: >-
+      Multi-vendor platform — zcela mimo V1 scope. Doporučit
+      specialised řešení (Sharetribe, Mirakl) mimo Rychi.
+
+confidence:
+  level: low
+  notes: >-
+    First cut z public knowledge. Operátor neměl reálný e-commerce projekt
+    v posledních 2 letech. V1 archetype je placeholder — refine bude
+    vyžadovat reálný projekt nebo se bude celý archetype přesunout do
+    "out of scope" sekce factory.

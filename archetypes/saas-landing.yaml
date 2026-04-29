@@ -1,0 +1,180 @@
+schema_version: "1.0"
+id: saas-landing
+name: "SaaS landing"
+
+description: >-
+  Marketing landing page pro SaaS produkt v early-stage (pre-launch nebo
+  early-revenue). Web jako kanál pro waitlist signup, demo request, free
+  trial signup. Často objednávané interními marketing týmy SaaS firem,
+  méně často agenturami — proto V1 archetype je low-confidence.
+
+detection:
+  client_phrases:
+    - "Chystáme launch [produktu], potřebujeme landing."
+    - "Máme zatím jen waitlist, ale roste to a potřebujeme web."
+    - "Chceme něco jako Linear, Vercel, Stripe — clean, technical."
+    - "Naše stávající stránka je placeholder z Webflow templates."
+    - "Pricing máme dynamický / hidden / per case — jak na webu?"
+
+  typical_industries:
+    - "B2B SaaS (productivity, vývojářské nástroje)"
+    - "developer tools, infrastructure (databáze, monitoring)"
+    - "vertikální SaaS pro specific niche (legaltech, fintech, health)"
+    - "AI / ML produkty"
+    - "no-code / low-code platforms"
+
+  scope_signals:
+    - "klient řekne 'pricing' nebo 'tiers' v intake"
+    - "produkt má UI screenshots / videos jako klíčový marketing asset"
+    - "blog / changelog je on-roadmap (content marketing as channel)"
+    - "integrace s product analytics (Posthog, Amplitude, Mixpanel)"
+    - "klient cílí na devs / technical users (markdown blogs, API docs)"
+
+suggested_stack:
+  track: nextjs-sanity
+  rationale: >-
+    SaaS typicky potřebuje signup / login flow s auth (Clerk default).
+    Pricing tabulky často interaktivní (toggle monthly / yearly).
+    Marketing pages content-driven přes Sanity. nextjs-sanity poskytuje
+    obojí v jednom stacku.
+  alternatives:
+    - track: astro-sanity
+      when: "čistě marketing landing, žádný auth ani interactive UI"
+      note: "často použité pro pre-launch waitlist sites"
+
+typical_scope:
+  page_count_range: [5, 10]
+  must_have_pages:
+    - homepage
+    - "features (listing nebo single page)"
+    - pricing
+    - "o nás / o produktu"
+    - "blog (listing + post detail)"
+    - "signup / login"
+    - "ochrana osobních údajů + obchodní podmínky"
+    - "404"
+  common_features:
+    - "pricing toggle (monthly / yearly)"
+    - "demo request form / Calendly embed"
+    - "feature comparison table (vs. konkurence)"
+    - "interactive product demo (video, embedded UI, sandbox)"
+    - "changelog / release notes"
+    - "documentation sitemap (link na docs.product.com)"
+    - "newsletter signup (early-stage waitlist)"
+    - "social proof (logos, testimonials, metrics)"
+
+priority_questions:
+  - id: q1
+    question: "Pricing: zveřejníte tiers + ceny, nebo 'Request demo' / hidden pricing?"
+    why: >-
+      Driveuje IA + design pricing stránky. Public pricing = transparency,
+      hodí se pro SMB SaaS. Hidden = enterprise sales motion. Hybrid
+      ('Starter / Pro public, Enterprise contact us') je nejčastější.
+    surfaces_to: [scope.pages, business.tone_of_voice]
+
+  - id: q2
+    question: "Signup flow: hned na webu (free trial), nebo waitlist + email follow-up?"
+    why: >-
+      Waitlist = jednodušší (email collect + Mailchimp / Loops sequence).
+      Free trial = vyžaduje auth (Clerk), product onboarding, billing
+      (Stripe). 10× rozsah implementace.
+    surfaces_to: [scope.auth_required, stack.auth, stack.track]
+
+  - id: q3
+    question: "Co je v ICP — ideální zákazník? Velikost firmy, role, industry?"
+    why: >-
+      SaaS web musí mluvit přesně k jedné personě. 'Pro všechny' není
+      pozicování. Bez ICP marketing copy bude fluffy ('zvyšte produktivitu')
+      místo specifického ('SOC2-ready audit log pro fintech compliance').
+    surfaces_to: [audience.personas, business.usp]
+
+  - id: q4
+    question: "Konkurence: kdo, jak se vůči nim odlišujete?"
+    why: >-
+      SaaS trh přeplněný. 'Lepší než Notion' nestačí. Web musí explicit
+      ukazovat 1-2 specifické odlišnosti. Bez toho vstupní signup conversion
+      < 1 %.
+    surfaces_to: [business.competitors, business.usp]
+
+  - id: q5
+    question: "Product analytics: máte Posthog / Amplitude / Mixpanel? Co měříme z webu?"
+    why: >-
+      SaaS landing není měřená podle 'návštěvnosti'. Měří se signup conversion
+      per source, time-to-trial-start, blog → pricing CTR. Bez setup analytics
+      web je černá skříňka.
+    surfaces_to: [scope.integrations, stack.analytics]
+
+common_gotchas:
+  - title: "Pricing changes mid-build"
+    description: >-
+      SaaS startup má v early-stage pricing experimenty. Klient ti dá
+      pricing v intake, v Phase 5 (build) má jiný pricing, v Phase 7
+      další. Web musí mít easy pricing edit flow.
+    mitigation: >-
+      Pricing tiers jako Sanity dataset, ne hardcoded v komponentách.
+      Klient sám aktualizuje přes Studio. Plus 'pricing v review'
+      checkpoint pro každý launch.
+
+  - title: "Product UI screenshots zastarávají rychle"
+    description: >-
+      Screenshots produktu, které jsou v Phase 5 čerstvé, jsou v Phase 8
+      už zastaralé (UI se mění weekly). Web vypadá nedopečeno.
+    mitigation: >-
+      Screenshots jako Sanity assets s 'last_updated' field. Quarterly
+      reminder klientovi (Telegram alert?) na refresh. Alternative:
+      embed live product demo místo screenshotsů (challenge: anonymous
+      access).
+
+  - title: "Waitlist → live signup transition"
+    description: >-
+      V early-stage je waitlist signup. Po launch je live signup. Web
+      musí mít obě varianty a graceful transition mezi nimi. Klient na
+      to typicky nemyslí.
+    mitigation: >-
+      Architect agent (Phase 1) explicit zeptat: 'kdy plánujete přechod
+      waitlist → live?'. Pokud < 6 měsíců, postavit obojí už teď,
+      přepínač přes Sanity flag.
+
+  - title: "Žádný clear ICP"
+    description: >-
+      Klient řekne 'pro všechny SaaS firmy' nebo 'pro vývojáře'. Příliš
+      široké. Marketing copy nedokáže rezonovat s nikým specifickým.
+    mitigation: >-
+      Intake otázka: 'Pokud bys mohl/a získat jen jednoho zákazníka,
+      kdo by to byl? Konkrétní firma, role, velikost.' Pokud klient
+      neví, doporučit pre-projekt customer development workshop (mimo factory).
+
+  - title: "Stock SaaS aesthetics"
+    description: >-
+      Design phase 2a vygeneruje 'minimalist clean' direction kterou
+      klient potvrdí, ale výsledek vypadá jako 100 jiných SaaS landingu.
+      Generic Inter font, modré accent, geometric illustrations.
+    mitigation: >-
+      Design phase explicitně push na jednu specifickou aesthetic
+      (editorial / industrial / playful / brutalist), ne 'clean modern'.
+      Reference scraping ve Phase 2a klade důraz na specifičnost.
+
+red_flags:
+  - description: "Klient nemá zadanou ICP a odmítá ji ujasnit ('to vyřešíme později')"
+    response: >-
+      Web bez ICP je marketing bez cíle. Doporučit nejprve customer
+      development workshop. Bez toho project bude flailing, výsledek
+      generic.
+
+  - description: "Klient chce 'jako [konkurent]' jako jediná designová direction"
+    response: >-
+      Web bude vypadat jako kopie. SaaS trh je already saturated.
+      Doporučit iteraci v Phase 2a k odlišnému visual language.
+
+  - description: "Klient nemá payment provider, ale chce live signup s billing"
+    response: >-
+      Stripe / Paddle setup trvá týdny (KYC, smlouvy). Project zablokován.
+      Buď doporučit waitlist V1 a billing V2, nebo počkat na payment ready.
+
+confidence:
+  level: low
+  notes: >-
+    First cut z public knowledge. Operátor neměl reálný SaaS landing
+    projekt — typicky to dělají interní marketing týmy SaaS firem nebo
+    specialized SaaS-focused studios (Cosmic, Fictive Studio). V1
+    archetype je placeholder pro případ, kdy SaaS klient přijde.

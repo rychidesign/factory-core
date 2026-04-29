@@ -1,0 +1,161 @@
+schema_version: "1.0"
+id: restaurant-hospitality
+name: "Restaurant / hospitality"
+
+description: >-
+  Restaurace, bistra, kavárny, hotely, penziony. Web jako příprava
+  návštěvy: menu, rezervace, lokace, opening hours. Často multilingual
+  (cs + en pro turistickou klientelu, zejména v Praze).
+
+detection:
+  client_phrases:
+    - "Naše stránka je v WiX a vůbec to nestíháme."
+    - "Klienti rezervují přes telefon, je to nepohodlné."
+    - "Potřebujeme menu online, mění se každé 2 týdny."
+    - "Anglická verze chybí, máme expaty / turisty."
+    - "Chceme vypadat jak [...] (Lokál, Bistro 8, Eska, ...)"
+
+  typical_industries:
+    - "bistra, kavárny (do 30 míst, 3-7 dnů otevírací doba)"
+    - "restaurace s sezónním menu (změna každé 2 týdny)"
+    - "menší hotely a penziony (do 25 pokojů)"
+    - "vinotéky, bary"
+    - "catering / food trucks (občas)"
+
+  scope_signals:
+    - "menu se mění často (≥ 1× měsíčně)"
+    - "klient chce sám editovat menu / fotky / opening hours"
+    - "expati / turisté jako sekundární publikum (multilang potřeba)"
+    - "online rezervace přes 3rd party (Resmio, OpenTable, Booking.com)"
+
+suggested_stack:
+  track: astro-sanity
+  rationale: >-
+    Sanity Studio dovoluje provoznímu týmu sám editovat menu a fotky
+    bez vývojáře. Astro static build dělá web rychlý na mobilu, kde
+    většina návštěvníků kouká.
+  alternatives:
+    - track: nextjs-sanity
+      when: "klient chce vlastní reservation flow s state management (rare)"
+
+typical_scope:
+  page_count_range: [5, 10]
+  must_have_pages:
+    - homepage
+    - "menu (current + příští týden / sezónní)"
+    - "rezervace (form nebo embed)"
+    - "o nás / o bistru"
+    - "kontakt + lokace + opening hours"
+    - "404"
+  common_features:
+    - "embed reservation (Resmio, OpenTable, Booking.com)"
+    - "menu jako Sanity dataset (structured: nadpis, popis, cena, alergeny)"
+    - "opening hours s 'right now: open / closed' indikátorem"
+    - "Google Maps embed nebo screenshot s linkem"
+    - "Instagram embed (občas, pro live aktualizace)"
+    - "multilang switcher (cs / en typicky)"
+
+priority_questions:
+  - id: q1
+    question: "Kdo bude editovat menu? Manažer? Šéfkuchař? Externí?"
+    why: >-
+      Ten člověk pravděpodobně nemá technické zázemí. Sanity Studio musí
+      mít minimum polí, jasné labels, žádné technické termíny. Schema
+      design má být vstřícný pro non-tech editor.
+    surfaces_to: [stack.cms, scope.features]
+
+  - id: q2
+    question: "Rezervace: budeme používat existující systém (Resmio, OpenTable), nebo budovat vlastní?"
+    why: >-
+      Embed = trivial implementation, žádný state management, ale provider
+      controls UI. Vlastní = víc kontroly, ale +5-10 dnů vývoje a vlastní
+      backend. 90 % bistro projektů jede embed.
+    surfaces_to: [stack.track, scope.features, scope.integrations]
+
+  - id: q3
+    question: "Multilang: jen cs, cs + en, nebo víc?"
+    why: >-
+      Multilang vynucuje audience.languages a scope.multilang. Pražské
+      bistro typicky cs + en. České město bez turistické klientely
+      typicky jen cs.
+    surfaces_to: [audience.languages, scope.multilang, meta.language]
+
+  - id: q4
+    question: "Máte profesionální fotky jídla? Kdo je dělá při změně menu?"
+    why: >-
+      Restaurant web bez kvalitních food fotek nefunguje. Menu mění se
+      pravidelně, fotky musí mít stejný update cyklus. Pokud klient
+      nemá fotografa, je to dodatečná logistika a náklad.
+    surfaces_to: [business.existing_brand, design-direction.imagery_style]
+
+  - id: q5
+    question: "Specifika provozu: catering, eventy, večírky, allergeny — co řešíme?"
+    why: >-
+      Bistro může mít side business (catering, event venue), který
+      potřebuje vlastní stránku nebo formulář. Allergeny můžou být
+      regulatory requirement (EU). Ujasnit v intake.
+    surfaces_to: [scope.pages, scope.features]
+
+common_gotchas:
+  - title: "Stock food fotky"
+    description: >-
+      Glossy stock fotky na bistro webu okamžitě poznáš a podkopávají
+      authenticity. Návštěvník očekává reálné jídlo z reálné kuchyně.
+    mitigation: >-
+      Vyžadovat vlastní fotomateriál. Pokud klient nemá, naplánovat foto
+      session jako součást projektu (1 den, +cena). Než stock, raději
+      žádné fotky a velmi typografický design.
+
+  - title: "Opening hours nejsou dynamické"
+    description: >-
+      Statická tabulka "Po-Pá 11-22, So-Ne 12-23" nezohledňuje svátky,
+      sezónní změny, neplánované zavřeno. Návštěvník zazvoní u zavřených dveří.
+    mitigation: >-
+      Sanity schema s 'special hours' field (date overrides). Frontend
+      komponenta s 'right now: open / closed' indikátorem na základě
+      dnešního dne + special override.
+
+  - title: "Allergeny v menu"
+    description: >-
+      EU regulation: allergeny musí být zveřejněny. Klient na to
+      typicky zapomíná, nebo je má v 8pt fontu úplně dole na webu.
+    mitigation: >-
+      Sanity schema každého menu item má structured 'allergens' pole.
+      Frontend zobrazuje jako ikonky / štítky inline u jídla.
+
+  - title: "Mobilní web nefunguje na cestě"
+    description: >-
+      Návštěvník otvírá web 5 minut před návštěvou na cestě v MHD.
+      Pomalý load, velké hero video, nečitelné menu = ztracený zákazník.
+    mitigation: >-
+      Performance budget agresivní: LCP < 2s na 4G, no hero video, image
+      lazy load. Menu jako čistý HTML, ne JS-driven gallery.
+
+  - title: "Sezónní menu rotace"
+    description: >-
+      Klient publikuje "menu_aktualni" a po týdnu zapomene archivovat.
+      Po 6 měsících je 'aktuální' menu zastaralé a Google Cache ukazuje
+      letní menu v listopadu.
+    mitigation: >-
+      Sanity schema s 'valid_from' a 'valid_until' fields. Frontend
+      automaticky vybere relevantní menu. Možnost archivu pro audit.
+
+red_flags:
+  - description: "Klient chce 'jako restaurace v Paříži' bez specifik (web styl)"
+    response: >-
+      Příliš generic. Doporučit konkrétní reference (URL), aby design
+      direction měla anchor. Bez toho Phase 2a vygeneruje 3 generic
+      directions.
+
+  - description: "Klient nemá pravidelný update rytmus menu, ale chce 'aktuálnost'"
+    response: >-
+      Sanity je jen tak živá, jak často klient edituje. Bez procesu
+      (kdo, kdy, jak často) menu zastará. Lepší: sezónní menu (4× ročně)
+      než denní, který nikdy neaktualizuje.
+
+confidence:
+  level: low
+  notes: >-
+    First cut z public knowledge bez operátorova reálného restaurant projektu
+    v posledních letech. Refine podle prvního reálného restaurant intake.
+    Multilang a opening hours dynamics jsou nejvíc speculative.

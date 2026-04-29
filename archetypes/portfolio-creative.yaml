@@ -1,0 +1,159 @@
+schema_version: "1.0"
+id: portfolio-creative
+name: "Portfolio (creative)"
+
+description: >-
+  Solo kreativec nebo malé studio — designer, fotograf, architekt,
+  copywriter, motion designer. Web jako důkaz schopnosti a kanál
+  pro získávání retainer-style klientů. Časté Rychi reference, vychází
+  z provozního pohledu operátora (rychidesign/digitaldesigner).
+
+detection:
+  client_phrases:
+    - "Potřebuju portfolio, kde ukážu svoje práce."
+    - "Hiring manager mi musí pochopit, že rozumím produktu, ne jen kreslím UI."
+    - "Stávající portfolio je v PDF / na Behance / na Dribbble — chci vlastní web."
+    - "Chci se pozicovat jinak než [konkurence]."
+    - "Není to job board, řeším retainer / dlouhodobé spolupráce."
+
+  typical_industries:
+    - "UX/UI design (freelance i in-house odchody)"
+    - "fotografie (architektonická, produktová, food)"
+    - "architektura / interior design"
+    - "copywriting, content design"
+    - "motion / 3D design"
+
+  scope_signals:
+    - "klient má 4-12 dokončených projektů, které stojí za vystavení"
+    - "publikační rytmus 2-4 nové projekty / rok"
+    - "tone deliberately personal — chce se odlišit od agentury"
+    - "minimal CMS need — někdy stačí typed TS data místo Sanity"
+
+suggested_stack:
+  track: astro-sanity
+  rationale: >-
+    Sanity dovoluje klientovi sám aktualizovat case studies bez vývojáře.
+    Pro velmi minimální portfolio (4-5 projektů, klient = developer-friendly)
+    lze přejít na typed TS data v src/content/ bez CMS — viz reference
+    rychidesign/digitaldesigner.
+  alternatives:
+    - track: astro-sanity-no-cms
+      when: "klient sám kóduje, žádný CMS netřeba; obsah jako TS data"
+      note: "není formální track, jen astro-sanity bez wired-up Sanity"
+
+typical_scope:
+  page_count_range: [4, 8]
+  must_have_pages:
+    - homepage
+    - "případy / projekty (listing)"
+    - "případ / projekt/[slug] (detail)"
+    - "o mně / o studiu"
+    - kontakt
+    - "404"
+  common_features:
+    - "case study s rich content (text + images + videos + interactive)"
+    - "filtrování projektů (typ, klient, rok)"
+    - "embed z Vimea / YouTube pro motion / video case studies"
+    - "občas mini-blog / notes pro sdílení procesu"
+    - "skill / služby sekce (občas)"
+
+priority_questions:
+  - id: q1
+    question: "Jak mají case studies znít — esej se zdůvodněním rozhodnutí, nebo strukturovaná challenge / solution / outcome?"
+    why: >-
+      Rozdíl 10× v rozsahu textu i v intenzitě discovery procesu. Esej
+      = 800-1500 slov, strukturovaný = 200-400 slov + diagram. Volba
+      driveuje template a content-writer agent prompt.
+    surfaces_to: [scope.pages, business.tone_of_voice]
+
+  - id: q2
+    question: "Kdo je hiring manager / klient, který má z webu napsat? Co potřebuje vidět, aby napsal?"
+    why: >-
+      Persona musí být velmi konkrétní u solo creative. Není to "návštěvník",
+      je to konkrétní VP Product / Head of Design / kreativní ředitel,
+      který má specifické obavy ("rozumí produktu, ne jen vizuálu").
+    surfaces_to: [audience.personas, audience.primary_persona_id]
+
+  - id: q3
+    question: "Jak často budeš case studies aktualizovat? 2× ročně, 4×, víc?"
+    why: >-
+      Update frekvence rozhoduje, jestli má smysl Sanity (admin overhead
+      pro typed content) nebo TS data (commit nový .ts soubor). Pod 4×
+      ročně = TS data jsou pragmatičtější.
+    surfaces_to: [stack.cms, stack.track]
+
+  - id: q4
+    question: "Existuje něco, co děláš, ale na web NEPATŘÍ? (klienti, projekty, NDA-bound)"
+    why: >-
+      Solo creative má často side projekty / discovery work, který nemá
+      být veřejný. Ujasnit teď ušetří awkward "tohle prosím vymažte"
+      v review fázi.
+    surfaces_to: [scope.pages, goals.anti_goals]
+
+common_gotchas:
+  - title: "'Less is more' špatně pochopené"
+    description: >-
+      Klient si myslí, že minimalismus = minimum textu. Pak case studies
+      neobsahují kontext a hiring manager nepochopí, co se reálně dělalo.
+    mitigation: >-
+      Minimalismus se týká vizuálu, ne obsahu. Case studies musí mít
+      dostatek kontextu (problém, omezení, výsledek). Editorial design,
+      ne marketing brochure.
+
+  - title: "Animace overdose"
+    description: >-
+      Designer chce ukázat "co umí" a navrší 5+ animací do hero. Mobile
+      performance trpí, accessibility (prefers-reduced-motion) ignorovaná,
+      nebo se klade důraz na efekt místo na obsah.
+    mitigation: >-
+      Animace jen tam, kde mají narrative funkci (scrub gallery, transition
+      mezi case studies). Phase 7 (polish) má explicit human gate na
+      animation approval.
+
+  - title: "Font licensing"
+    description: >-
+      Designer si vybere typografický statement font (Satoshi, Tobias,
+      etc.) bez kontroly licence pro web embed. Pak buď platí $200+/rok
+      za licenci, nebo musí substituovat.
+    mitigation: >-
+      Na začátku Phase 2 ověřit licenci pro vybrané fonty. Self-hostable
+      ze Fontshare / Pangram = zero-cost. Adobe Fonts vyžaduje aktivní subscription.
+
+  - title: "Project case studies bez kontextu"
+    description: >-
+      "Tohle je redesign pro X" + 3 screenshots bez dalšího vysvětlení.
+      Hiring manager neví, jestli se autor podílel na strategii, nebo
+      jen na finálním UI.
+    mitigation: >-
+      Per case study explicitně: tvoje role (sole / lead / contributor),
+      tvoje rozhodnutí, tvoje trade-offs. Bez tohoto je case study
+      ke všemu k ničemu pro hiring decision.
+
+  - title: "Klient řekne 'dělám 50 různých věcí'"
+    description: >-
+      Klient se snaží zachytit širokou škálu zájmů (UI + branding + 3D
+      + photography + ...). Web ztrácí ostrost, hiring manager se ztrácí
+      ve štítcích.
+    mitigation: >-
+      Intake otázka: "Pokud bys měl/a brát jen jeden typ projektu, který
+      by to byl?" Hierarchizace skills, ne paritní list.
+
+red_flags:
+  - description: "Klient nemá ani 4 dokončené projekty, které by stály za vystavení."
+    response: >-
+      Portfolio předčasné. Doporučit pracovat ještě 6-12 měsíců, sbírat
+      shipped work. Slabé portfolio škodí víc než žádné.
+
+  - description: "Klient odmítá ukázat metrics / outcome z projektů ('NDA')."
+    response: >-
+      Pokud nemůže ukázat čísla ani u jednoho projektu, hiring manager
+      nemá důvod věřit, že outcome reálně produkuje. Doporučit aspoň
+      kvalitativní outcomes (klient feedback, before/after).
+
+confidence:
+  level: medium-high
+  notes: >-
+    Vycházíme z analýzy operátorova vlastního portfolia
+    (rychidesign/digitaldesigner) jako referenčního projektu archetype.
+    Solid pro creative-portfolio případy, méně rigorózní pro photography
+    nebo motion-heavy variants.
