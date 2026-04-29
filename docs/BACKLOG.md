@@ -35,3 +35,10 @@ Parking lot pro nápady, které vznikly během práce, ale nepatří do aktuáln
 - **Network egress restrictions v permissions.yaml** — current matrix dovolí `curl *` u některých agentů (deployer, route-auditor). Není restrict na hosts (žádný `curl https://exfil.evil` block). Post-V1 doplnit `deny: ["curl http://*", "curl https://*evil*"]` per security review.
 - **`permissions.schema.json`** — V1 nemá formal JSON Schema pro matrix (manual review). Když začnou přibývat agents nebo matrix bude error-prone, doplnit.
 - **Daemon mode pro hooks** — v V1 každé volání = fresh Node process. Při scale (Wave 5+, parallel projects ve V2) zvážit long-lived daemon listening on Unix socket — eliminates cold start.
+- **`scripts/`, `systemd/`, `config/` v ARCHITECTURE.md §2.1** — tyto adresáře přibyly v 1.7, ARCHITECTURE.md je nezmiňuje. Doplnit při příští round-of-fixes.
+- **Cross-distro support pro server-setup.sh** — current scripts assume Ubuntu/Debian (apt). Pokud budeš někdy migrovat na Fedora / Arch / NixOS, doplnit detection + alternatives. Pro V1 (jeden homelab server) YAGNI.
+- **Cloudflared cert renewal automation** — cert.pem expiruje cca po roce. Wave 5 monitor by mohl detekovat blížící se expiraci a poslat Telegram alert s instrukcemi.
+- **Backup secrets.env do password manageru** — současný workflow je manuální. Možná stojí za úvahu integrace s 1Password CLI / Bitwarden CLI pro fetch secrets at boot, ale to je víc complexity než benefit pro single operator V1.
+- **`factory new <project-id>` skript** — referencovaný v server-setup doc, ale neexistuje. Ships v Krok 3.4 (Wave 3).
+- **`tools/factory-runner` binary** — referencovaný v `factory@.service` `ExecStart`. Neexistuje. Ships v Krok 3.1 (Wave 3, orchestrator V1).
+- **`tools/factory-monitor`** — referencovaný v `factory-monitor.service`. Neexistuje. Ships v Krok 5.4 (Wave 5).

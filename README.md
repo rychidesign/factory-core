@@ -40,6 +40,9 @@ factory-core/
 ├── conventions/           # Project-wide conventions
 ├── intake/                # Intake system prompt + supporting files (Wave 2)
 ├── tools/                 # CLI utilities (factory, spec-validate, ...)
+├── scripts/               # Server provisioning (server-setup, install-cloudflared, install-tailscale)
+├── systemd/               # systemd unit files (factory@, factory-dashboard, factory-monitor)
+├── config/                # Templates for runtime config (secrets.env.example)
 └── stack-catalog.yaml     # Supported stack tracks (added in Wave 1, step 1.4)
 ```
 
@@ -47,7 +50,13 @@ This skeleton matches [`docs/ARCHITECTURE.md` §2.1](docs/ARCHITECTURE.md). Empt
 
 ## Server-side mirror
 
-The factory runtime expects this repo cloned at `~/factory-projects/factory-core/` on the homelab server. Full server preparation (factory user, cloudflared, systemd services) is part of Wave 1 step 1.7.
+The factory runtime expects this repo cloned at `~/factory-projects/factory-core/` on the homelab server. Full server preparation (factory user, cloudflared, systemd services) is described in [`docs/how-to/server-setup.md`](docs/how-to/server-setup.md). Three idempotent scripts cover provisioning:
+
+```bash
+sudo bash scripts/server-setup.sh         # factory user, deps, repo, secrets template
+sudo bash scripts/install-cloudflared.sh  # tunnel, DNS, systemd
+sudo bash scripts/install-tailscale.sh    # emergency SSH backup
+```
 
 ## License
 

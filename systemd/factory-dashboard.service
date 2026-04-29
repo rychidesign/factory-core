@@ -1,0 +1,47 @@
+# Dashboard service.
+#
+# The dashboard is a separate Astro app built in Wave 5. This unit file
+# expects the built artefact at /home/factory/factory-dashboard/dist/
+# with an entry point at server/entry.mjs (Astro's default Node adapter
+# output).
+#
+# Install:
+#   sudo cp factory-dashboard.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now factory-dashboard
+#
+# Wave 1 status: do NOT enable yet — the dashboard repo doesn't exist.
+# Cloudflare Tunnel (factory.digitaldesigner.cz → localhost:3000) will
+# return 502 until the dashboard ships, which is the expected smoke-test
+# state for step 1.7.
+
+[Unit]
+Description=Rychi Design Factory Dashboard
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=factory
+Group=factory
+WorkingDirectory=/home/factory/factory-dashboard
+EnvironmentFile=/home/factory/.config/factory/secrets.env
+Environment="NODE_ENV=production"
+Environment="PORT=3000"
+Environment="HOST=127.0.0.1"
+Environment="FACTORY_PROJECTS_ROOT=/home/factory/factory-projects/clients"
+Environment="FACTORY_CORE=/home/factory/factory-projects/factory-core"
+
+ExecStart=/usr/bin/node /home/factory/factory-dashboard/dist/server/entry.mjs
+
+Restart=always
+RestartSec=5
+TimeoutStartSec=30
+
+# Logging.
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=factory-dashboard
+
+[Install]
+WantedBy=default.target

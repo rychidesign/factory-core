@@ -1,0 +1,41 @@
+# Heartbeat + Telegram alerts service.
+#
+# Watches per-project state.json files and emits Telegram notifications
+# at the escalation levels defined in ADR-0012 (L2 daily digest, L3
+# immediate alert). Implementation lands in Wave 5 (step 5.4). This
+# unit file is committed early so server-setup.sh installs it once.
+#
+# Install:
+#   sudo cp factory-monitor.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now factory-monitor   # ONLY after Wave 5
+#
+# Wave 1 status: do NOT enable yet — tools/factory-monitor doesn't exist.
+
+[Unit]
+Description=Rychi Design Factory Monitor (heartbeat + Telegram)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=factory
+Group=factory
+WorkingDirectory=/home/factory/factory-projects
+EnvironmentFile=/home/factory/.config/factory/secrets.env
+Environment="FACTORY_CORE=/home/factory/factory-projects/factory-core"
+Environment="FACTORY_PROJECTS_ROOT=/home/factory/factory-projects/clients"
+
+ExecStart=/usr/bin/node /home/factory/factory-projects/factory-core/tools/factory-monitor
+
+Restart=on-failure
+RestartSec=15
+TimeoutStartSec=30
+
+# Logging.
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=factory-monitor
+
+[Install]
+WantedBy=default.target

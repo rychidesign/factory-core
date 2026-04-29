@@ -1,0 +1,53 @@
+# Per-project factory runner. One systemd instance per client project,
+# instance name matches the project_id (kebab-case).
+#
+# Install:
+#   sudo cp factory@.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#
+# Start a project:
+#   sudo systemctl start factory@acme-precision-2026
+#   sudo systemctl status factory@acme-precision-2026
+#   sudo journalctl -u factory@acme-precision-2026 -f
+#
+# Stop / pause:
+#   sudo systemctl stop factory@acme-precision-2026
+#
+# Wave 1 status: the runner binary referenced as ExecStart does not yet
+# exist — it ships in step 3.1 (orchestrator V1). This unit file is
+# committed now so server-setup.sh installs it once and Wave 3 can
+# `systemctl start` without further provisioning.
+
+[Unit]
+Description=Rychi Design Factory: %i
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=factory
+Group=factory
+WorkingDirectory=/home/factory/factory-projects/clients/%i
+EnvironmentFile=/home/factory/.config/factory/secrets.env
+Environment="FACTORY_PROJECT_ID=%i"
+Environment="FACTORY_CORE=/home/factory/factory-projects/factory-core"
+Environment="FACTORY_AUDIT_LOG=/home/factory/factory-logs/permission-audit.jsonl"
+Environment="FACTORY_TOOL_EVENT_LOG=/home/factory/factory-logs/tool-events.jsonl"
+
+ExecStart=/home/factory/factory-projects/factory-core/tools/factory-runner --project=%i
+
+Restart=on-failure
+RestartSec=10
+TimeoutStartSec=60
+
+# Resource limits (per ARCHITECTURE §12.1).
+MemoryMax=4G
+CPUQuota=200%
+
+# Logging.
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=factory-%i
+
+[Install]
+WantedBy=default.target
