@@ -1,0 +1,103 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# A push triggered by another push (e.g. force-push race) cancels the previous run.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: validate factory-core contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+
+      - name: Install factory-core dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint shell scripts
+        run: |
+          set -e
+          for f in scripts/*.sh tools/*.sh; do
+            [ -f "$f" ] && bash -n "$f" && echo "ok: $f"
+          done
+
+      - name: Validate every committed example
+        run: pnpm validate:examples
+
+      - name: Permission matrix scenarios (33 cases)
+        run: pnpm test:permissions
+
+      - name: Sanity-check archetype YAMLs
+        run: |
+          set -e
+          for f in archetypes/*.yaml; do
+            python3 -c "import yaml,sys; yaml.safe_load(open('$f'))" && echo "ok: $f"
+          done
+
+      - name: Cross-check archetype tracks against stack-catalog
+        run: |
+          set -e
+          archetype_tracks=$(grep -hE "^[[:space:]]+track: " archetypes/*.yaml | awk -F': ' '{print $3}' | sort -u)
+          catalog_tracks=$(grep -E "^  [a-z][a-z-]+:$" stack-catalog.yaml | sed 's/[: ]//g' | sort -u)
+          for t in $archetype_tracks; do
+            if ! echo "$catalog_tracks" | grep -qx "$t"; then
+              echo "::error::archetype references unknown stack track: $t"
+              exit 1
+            fi
+          done
+          echo "ok: every archetype suggested_stack.track exists in stack-catalog.yaml"
+
+  template:
+    name: astro-sanity template smoke test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: templates/astro-sanity
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+          cache-dependency-path: templates/astro-sanity/pnpm-lock.yaml
+
+      - name: Install template dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Build (mock content, no Sanity credentials needed)
+        run: pnpm build
