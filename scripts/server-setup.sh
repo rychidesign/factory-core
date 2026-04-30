@@ -164,8 +164,10 @@ Next steps (in order):
        sudo bash ${FACTORY_CORE_DIR}/scripts/install-tailscale.sh
 
   4. Install systemd unit files (templates only — no project runs yet):
-       sudo cp ${FACTORY_CORE_DIR}/systemd/*.service /etc/systemd/system/
+       sudo bash -c 'cp ${FACTORY_CORE_DIR}/systemd/*.service /etc/systemd/system/'
        sudo systemctl daemon-reload
+       # The bash -c wrapper is required: glob expansion happens in your
+       # shell, which can't read the factory user's home directory.
 
   5. Cloudflare Access policy (dashboard):
        https://one.dash.cloudflare.com → Access → Applications →

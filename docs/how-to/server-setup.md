@@ -238,13 +238,16 @@ ls /home/factory/factory-projects/factory-core/systemd/
 Review:
 
 ```bash
-less /home/factory/factory-projects/factory-core/systemd/factory@.service
+sudo ls /home/factory/factory-projects/factory-core/systemd/
+sudo cat /home/factory/factory-projects/factory-core/systemd/factory@.service
 ```
 
 Install:
 
 ```bash
-sudo cp /home/factory/factory-projects/factory-core/systemd/*.service /etc/systemd/system/
+# The bash -c wrapper is required — glob expansion otherwise happens
+# in your shell, which can't read the factory user's home directory.
+sudo bash -c 'cp /home/factory/factory-projects/factory-core/systemd/*.service /etc/systemd/system/'
 sudo systemctl daemon-reload
 ```
 
@@ -252,8 +255,8 @@ sudo systemctl daemon-reload
 
 ```bash
 # Verify only — neenable, nestart:
-systemctl list-unit-files | grep factory
-# factory@.service           static
+systemctl list-unit-files | grep ^factory
+# factory@.service           static     <- template
 # factory-dashboard.service  disabled
 # factory-monitor.service    disabled
 ```

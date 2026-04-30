@@ -31,7 +31,9 @@ install_tailscale() {
 login_tailscale() {
   if tailscale status >/dev/null 2>&1; then
     ok "Tailscale already authenticated."
-    tailscale status | head -3
+    # `head -n 3` would close the pipe early and trip set -o pipefail.
+    # `sed -n '1,3p'` reads to EOF and prints the first three lines.
+    tailscale status | sed -n '1,3p'
     return
   fi
   cat <<'EOF'
@@ -46,7 +48,7 @@ EOF
   # `tailscale up` blocks until the URL is approved.
   tailscale up --ssh --hostname=factory-server
   ok "Tailscale up."
-  tailscale status | head -3
+  tailscale status | sed -n '1,3p'
 }
 
 print_next_steps() {

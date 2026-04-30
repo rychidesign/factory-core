@@ -17,6 +17,12 @@
 # exist — it ships in step 3.1 (orchestrator V1). This unit file is
 # committed now so server-setup.sh installs it once and Wave 3 can
 # `systemctl start` without further provisioning.
+#
+# This is a TEMPLATE unit — instances are started on demand
+# (`systemctl start factory@<project-id>`), not enabled at boot. There
+# is intentionally no [Install] section: if a project should restart
+# automatically across reboots, enable that specific instance with
+# `systemctl enable factory@<project-id>` after the project starts.
 
 [Unit]
 Description=Rychi Design Factory: %i
@@ -49,5 +55,4 @@ StandardOutput=journal
 StandardError=journal
 SyslogIdentifier=factory-%i
 
-[Install]
-WantedBy=default.target
+# No [Install] — see the comment block at the top of this file.
